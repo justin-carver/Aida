@@ -1,3 +1,7 @@
+# Contains Twitter API information within config.json
+# "API" : "API_KEY_GOES_HERE"
+config.json
+
 # Logs
 logs
 *.log

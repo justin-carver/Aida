@@ -1,0 +1,37 @@
+{
+  "name": "aida",
+  "version": "1.0.0",
+  "description": "A promotional Twitter bot designed to simulate human social media coordinators naturally.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/justin-carver/Aida.git"
+  },
+  "keywords": [
+    "Twitter",
+    "bot",
+    "game",
+    "design",
+    "node",
+    "projects",
+    "board",
+    "games",
+    "pug",
+    "n",
+    "play",
+    "studios"
+  ],
+  "author": "Justin Carver",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/justin-carver/Aida/issues"
+  },
+  "homepage": "https://github.com/justin-carver/Aida#readme",
+  "dependencies": {
+    "twitter-api-v2": "^1.11.0"
+  }
+}
