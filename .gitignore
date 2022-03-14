@@ -1,6 +1,6 @@
 # Contains Twitter API information within config.json
-# "API" : "API_KEY_GOES_HERE"
-config.json
+# "bearer_token" : "TOKEN_INFORMATION_HERE"
+config.js
 
 # Logs
 logs

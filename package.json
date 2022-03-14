@@ -27,11 +27,19 @@
   ],
   "author": "Justin Carver",
   "license": "GPL-3.0-or-later",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/justin-carver/Aida/issues"
   },
   "homepage": "https://github.com/justin-carver/Aida#readme",
   "dependencies": {
-    "twitter-api-v2": "^1.11.0"
+    "express": "^4.17.3",
+    "express-session": "^1.17.2",
+    "node-fetch": "^3.2.3",
+    "twitter": "^1.7.1",
+    "twitter-api-client": "^1.5.2",
+    "twitter-api-v2": "^1.11.0",
+    "twitter-oauth2": "^1.0.4",
+    "undici": "^4.15.1"
   }
 }
