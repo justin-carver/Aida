@@ -2,9 +2,9 @@
   "name": "aida",
   "version": "1.0.0",
   "description": "A promotional Twitter bot designed to simulate human social media coordinators naturally.",
-  "main": "index.js",
+  "main": "aida.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node aida.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -3,10 +3,10 @@ Welcome!
 
 Aida is an automated promotional Twitter bot designed to simulate human social media coordinators naturally without (currently) the use of neural networks. This bot is meant to be a logically designed alternative to automated scheduling/posting bots, and my attempt to understand 'paid' Twitter bot features various startups offer. As well, Aida is not designed to be a malicious bot or a social media sponge. Aida will not mass follow people, spam certain users or groups with automated replies, or tweet at inhuman speeds in the middle of the night.
 
-This bot is designed to be used to foster growth and promote categorically-weighted content. So that brings us to our next question:
+This bot is designed to be used to foster growth and promote categorically-weighted content. Various improvements, features, and bug fixes will be introduced over the coming months as I continue to tweak Aida into the bot that I am designing it for. Below is a basis on the bot's technical abilities and features:
 
-### What is a category?
-A **category** is a collection of prepared tweets with various content or media that will be used by Aida to fill the calendar and schedule tweets through-out the designated time period stored within an easily editable JSON document. Your topics can be based on anything, but I recommend keeping related topics together in a single category to prevent random posts from invading your timeline if Aida has scheduled them differently.
+### Defining a category
+A **category** is a collection of prepared tweets with various content or media that will be used by Aida to fill the calendar and schedule tweets throughout the designated time period stored within an easily editable JSON document. Your topics can be based on anything, but I recommend keeping related topics together in a single category to prevent random posts from invading your timeline if Aida has scheduled them differently.
 
 #### Things Aida can do:
 
@@ -28,9 +28,13 @@ A **category** is a collection of prepared tweets with various content or media 
 
 ## Technicals
 
+**config.example.js** should be configured appropriately and renamed to **config.js** to enable Twitter API communication. Aida will not start without this file!
+
 *Libraries:*
 [twitter-api-client](https://www.npmjs.com/package/twitter-api-client)
+
 [node-cron](https://www.npmjs.com/package/node-cron)
+
 [express](https://www.npmjs.com/package/express)
 
 ---

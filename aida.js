@@ -4,28 +4,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 import conf from './config.js'
-import winston from 'winston';
-
-// Logger ------
-
-// TODO: Fix/Update transports to log accurate levels and info to the all necessary log files below.
-const logger = winston.createLogger({
-    level: 'info',
-    format: winston.format.simple(),
-    transports: [
-        new winston.transports.File({ filename: 'error.log', level: 'error'}),
-        new winston.transports.File({ filename: 'combined.log' }),
-    ],
-});
-
-// If we're not in production then log to the `console` with the format:
-// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
-if (process.env.NODE_ENV !== 'production') {
-    logger.add(new winston.transports.Console({
-        format: winston.format.simple()
-    }));
-}
+import { logger } from './helper.js';
+import initScheduler from './scheduler.js';
 
 // Twitter API ------
 
@@ -36,11 +18,8 @@ const twitterClient = new TwitterClient({
     accessTokenSecret: conf.accessTokenSecret
 });
 
-// logger.info(`Got it! Sending tweet! 🤩 [Tweet contents: $_{data}]`);
-// How to do
-// const data = await twitterClient.tweetsV2.createTweet({ "text" : "Theres something about making games..."});
-
 // Aida Core Logic ------
+// !! Reading / Writing JSON using 'fs': https://stackoverflow.com/questions/36856232/write-add-data-in-json-file-using-node-js
 
 const importCategory = (jsonPath) => {
     fs.readFile(__dirname + jsonPath, 'utf8', (err, data) => {
@@ -63,6 +42,7 @@ const aidaInit = () => {
     // importCategory('/categories/self-promotion.json');
     // importCategory('/categories/tutorials.json');
     // importCategory('/categories/articles.json');
+    initScheduler();
 }
 
 aidaInit();

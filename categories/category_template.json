@@ -1,0 +1,20 @@
+{
+    "topic" : "example cateogry",
+    "tweets" : {
+        "tweet1" : {
+            "text" : "this is a tweet",
+            "media" : "user1",
+            "date" : "date1"
+        },
+        "tweet2" : {
+            "text" : "this is a tweet",
+            "user" : "user2",
+            "date" : "date2"
+        },
+        "tweet3" : {
+            "text" : "this is a tweet",
+            "user" : "user3",
+            "date" : "date3"
+        }
+    }
+}
