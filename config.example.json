@@ -1,0 +1,19 @@
+{
+    "aida" : {
+        "logLevel" : "info",
+        "logOutputAsJson" : false
+    },
+    "calendar" : {
+        "timezone" : "US/Central",
+        "postingPeriod" : "weekly"
+    },
+    "twitterapi" : {
+        "apiKey" : "TWITTER_APIKEY",
+        "apiSecret" : "TWITTER_API_SECRET",
+        "accessToken" : "TWITTER_ACCESS_TOKEN",
+        "accessTokenSecret" : "TWITTER_ACCESS_TOKEN_SECRET",
+        "clientId" : "TWITTER_CLIENT_ID_OAUTH1",
+        "clientSecret" : "TWITTER_CLIENT_SCERET",
+        "bearer_token" : "BEARER_TOKEN_OAUTH2"
+    }
+}

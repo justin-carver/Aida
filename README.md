@@ -12,7 +12,7 @@ A **category** is a collection of prepared tweets with various content or media 
 
 - Performs 'smart tweets', tweeting only during certain hours or days based on traffic data.
 - Maintains human-like tweet frequency, will balance it's scheduled posts through a specific time period.
-- Understands which category posts are doing well, will promote posts from those more heavily.
+- *[Soon!] Understands which category posts are doing well, will promote posts from those more heavily.*
 - Will show which tweets are scheduled before posting for final approval.
 - Can automatically reply to direct messages with scripted responses. (If enabled manually)
 - Understands which hashtags are best for outreach and will promote those within your category.
@@ -28,14 +28,21 @@ A **category** is a collection of prepared tweets with various content or media 
 
 ## Technicals
 
-**config.example.js** should be configured appropriately and renamed to **config.js** to enable Twitter API communication. Aida will not start without this file!
+**config.example.json** should be configured appropriately and renamed to **config.json** to enable Twitter API communication. Aida will not start without this file!
 
 *Libraries:*
+
 [twitter-api-client](https://www.npmjs.com/package/twitter-api-client)
 
 [node-cron](https://www.npmjs.com/package/node-cron)
 
 [express](https://www.npmjs.com/package/express)
+
+## Wishlist
+
+These are various ideas that I would love to implement with Aida at some point:
+
+- [ ] Implement metric reporting locally on the server via Aida. Currently, users have to manage their own growth metrics.
 
 ---
 

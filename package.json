@@ -4,7 +4,7 @@
   "description": "A promotional Twitter bot designed to simulate human social media coordinators naturally.",
   "main": "aida.js",
   "scripts": {
-    "start": "node aida.js",
+    "start": "node --experimental-json-modules aida.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -33,6 +33,7 @@
   },
   "homepage": "https://github.com/justin-carver/Aida#readme",
   "dependencies": {
+    "date-fns": "^2.28.0",
     "express": "^4.17.3",
     "express-session": "^1.17.2",
     "node-cron": "^3.0.0",
@@ -42,6 +43,7 @@
     "twitter-api-v2": "^1.11.0",
     "twitter-oauth2": "^1.0.4",
     "undici": "^4.15.1",
+    "uuid": "^8.3.2",
     "winston": "^3.6.0"
   }
 }
