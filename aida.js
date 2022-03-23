@@ -6,16 +6,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 import * as conf from './config.json';
-import { logger } from './helper.js';
+import { logger, readFromConfig} from './helper.js';
 import initScheduler from './scheduler.js';
 
 // Twitter API ------
 
 const twitterClient = new TwitterClient({
-    apiKey : conf.default.twitterapi.apiKey,
-    apiSecret : conf.default.twitterapi.apiSecret,
-    accessToken : conf.default.twitterapi.accessToken,
-    accessTokenSecret : conf.default.twitterapi.accessTokenSecret
+    apiKey : readFromConfig(conf.default.twitterapi.apiKey),
+    apiSecret : readFromConfig(conf.default.twitterapi.apiSecret),
+    accessToken : readFromConfig(conf.default.twitterapi.accessToken),
+    accessTokenSecret : readFromConfig(conf.default.twitterapi.accessTokenSecret)
 });
 
 // Aida Core Logic ------
@@ -36,7 +36,7 @@ const assignCategory = (json, path) => {
 
 // TODO: Check if config.json exists in the current directory. If not, create it.
 const aidaInit = () => {
-    logger.info(`Display config file contents: ${JSON.stringify(conf.default.aida)}${JSON.stringify(conf.default.calendar)}`);
+    logger.info(`Display config file contents: ${JSON.stringify(readFromConfig(conf.default.aida))}${JSON.stringify(readFromConfig(conf.default.calendar))}`);
     // TODO: Convert this into a dynamic for loop, pulling info from directory.
     importCategory('/categories/example.json');
     // importCategory('/categories/examp.json');

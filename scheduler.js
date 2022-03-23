@@ -7,9 +7,9 @@
 // !! Reading / Writing JSON using 'fs': https://stackoverflow.com/questions/36856232/write-add-data-in-json-file-using-node-js
 
 import cron from 'node-cron';
-import { endOfWeek, eachDayOfInterval, nextDay, toDate, startOfTomorrow, set} from 'date-fns';
+import { isFuture, endOfWeek, eachDayOfInterval, nextDay, toDate, startOfTomorrow, set} from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
-import { logger } from './helper.js';
+import { logger, readFromConfig } from './helper.js';
 import * as conf from './config.json';
 
 // Sending Tweets using twitter-api-client.
@@ -41,13 +41,13 @@ const initCalendar = () => {
     }
 
     let postingPeriod = conf.default.calendar.postingPeriod;
-    let lastPostDay = '';
+    let lastPostDay = new Date(); // I really need to use TypeScript...
 
     // TODO: Implement posting periods for daily or monthly posting.
     if (acceptedPostingPeriods.includes(postingPeriod)) {
         if (postingPeriod == "weekly") {
             logger.info("Posting period has been set to weekly.");
-            lastPostDay = endOfWeek(startingDate); // The last day in which tweets will get scheduled for the period.
+            lastPostDay = endOfWeek(startingDate); 
             logger.info(`Last day of the posting period is (${lastPostDay}).`);
         }
     } else {
@@ -67,54 +67,96 @@ const initCalendar = () => {
     return calendar;
 }
 
-// TODO: Implement logic to only post during 'normal' hours, not during middle of night or after too long.
-const performScheduling = (calendarObj) => {
+const generatePreferredTimes = (calendar, useDefaultInterval = false) => {
     /**
-     * Analyze availablePostDays and determine which days will get what posts based on preferredPeriod [Interval?].
-     * Once completed, begin to stage those posts on the calendar object.
-     * Cron jobs should get assigned for each staged tweet.
-     */
+     *  Pick a time from within a 24-hour period. Compare it with perferredPostingInterval.
+     *  If the time is within the preferredPostingInterval range, add it to the postList, if not retry.
+    */
+
+    if (conf.default.calendar.preferredPostingInterval == (null || undefined)) {
+        throw new Error('What happened?');
+    }
+    
+    let hours, minutes, seconds = 0;
+    seconds = Math.floor(Math.random() * 60);
+
+    if (useDefaultInterval) { 
+        // Set posting interval to default times if none are listed in the config.
+    } else {
+
+    }
+
+    return {
+        hours: 0,
+        minutes: Math.floor(Math.random() * 60),
+        seconds: Math.floor(Math.random() * 60),
+        milliseconds: 0
+    };
+}
+
+const generatePreferredDate = (calendar) => {
+    let rDayValue = Math.floor(Math.random() * calendar.preferredPostingDays.length);
+    let rDay = calendar.preferredPostingDays[rDayValue];
+    logger.debug(`Random rDayValue: ${rDayValue}, Chosen Random Day: ${rDay}`);
+    if (!calendar.preferredPostingDays.includes(rDay)) {
+        logger.warn(`Nope! ${rDay} is not within ${calendar.availablePostDays}! Retrying!...`);
+        generatePreferredDate(calendar);
+    } else {
+        
+        rDay = set(rDay, generatePreferredTimes(calendar));
+        return rDay;
+    }
+}
+
+// TODO: Implement logic to only post during 'normal' hours, not during middle of night or after too long.
+// TODO: Fix issue with multiple posts being scheduled on one day. Keep count?
+const performScheduling = (calendar) => {
 
     // Example cron job. This will need to accept date-fns format at some point.
     // cron.schedule('*/2 * * * * *', () => {
     //     logger.info(uuidv4());
     // });
 
-    calendarObj.postList = '';
+    calendar.proposedPostList = [];
 
-    let intervalSpan = {};
+    let preferredPostingDays = [];
     // Only takes "weekly" posts into account at the moment. Will soon add daily and monthly options.
     for (let x in conf.default.calendar.preferredPostingInterval) {
-        intervalSpan[x] = nextDay(calendarObj.availablePostDaysInterval.start, x.toString());
+        if (!calendar.availablePostDays.includes(nextDay(calendar.availablePostDaysInterval.start, x.toString()))) {
+            preferredPostingDays.push(nextDay(calendar.availablePostDaysInterval.start, x.toString()));
+        }
     }
-    calendarObj.intervalSpan = intervalSpan;
+    
+    calendar.preferredPostingDays = preferredPostingDays;
 
     if (conf.default.calendar.strictlyUsePreferredPostingInterval) {
         // Only schedule posts during the preferred posting period specified in the config.
 
     } else {
-        for (let x = 0; x < conf.default.calendar.postFrequency; x++) {
+        for (let x = 0; x < readFromConfig(conf.default.calendar.postFrequency); x++) {
             // Can allow posts from outside specified posting period, though ultimately more rare.
             const nonPrefPostChance = conf.default.calendar.nonPreferredPostChance;
             const r = Math.random();
             logger.debug(`post chance: ${nonPrefPostChance}, random: ${r}, post on preferred day(s)?: ${r > nonPrefPostChance ? true : false }`);
             if (r > nonPrefPostChance) {
-                // Post on a day thats IN the preferred posting periods.
-
-                //  Complete these:
+                // ? Post on a day thats IN the preferred posting periods.
                 /**
                  *  Pick a random day from calendar.availablePostDays, compare it to see if its included in the preferred days. (availablePostdays.include(pickedDate));
                  *  If so, pick that day, if not, try again. (Maybe should be seperate method that is recalled?)
-                 * 
-                 *  Repeat for strictlyUsePreferredPostingInterval ^, but don't use recalling method.
-                 * 
-                 *  Once a day has been picked, randomly pick a time from within a 24-hour period. Compare it with perferredPostingInterval.
-                 *  If the time is within the preferredPostingInterval range, add it to the postList, if not retry.
-                 * 
-                 *  (Is there a better way to this?)
-                 */
+                */
+                
+                const postingDate = generatePreferredDate(calendar);
+                logger.debug(`Proposed date chosen from preferred posting intervals: ${postingDate}`);
+                calendar.proposedPostList.push(postingDate);
+
+
             } else {
-                // Post on non-preferred days.
+                // ? Post on non-preferred days.
+                const postingDate = calendar.availablePostDays[Math.floor(Math.random() * calendar.availablePostDays.length)];
+                logger.debug(`Proposed date chosen from all available posting intervals: ${postingDate}`);
+                calendar.proposedPostList.push(postingDate);
+
+
             }      
         }
     }
@@ -122,7 +164,7 @@ const performScheduling = (calendarObj) => {
     logger.info("Attempting to schedule posts...");
     logger.info("Analyzing best time to post to increase engagement odds...");
 
-    return calendarObj;
+    return calendar;
 }
 
 export default initScheduler;
