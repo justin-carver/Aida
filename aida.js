@@ -34,6 +34,7 @@ const assignCategory = (json, path) => {
     logger.info(`Creating and assigning category for: ${path}!`);
 }
 
+// TODO: Check if config.json exists in the current directory. If not, create it.
 const aidaInit = () => {
     logger.info(`Display config file contents: ${JSON.stringify(conf.default.aida)}${JSON.stringify(conf.default.calendar)}`);
     // TODO: Convert this into a dynamic for loop, pulling info from directory.

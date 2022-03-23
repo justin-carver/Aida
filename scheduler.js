@@ -7,7 +7,7 @@
 // !! Reading / Writing JSON using 'fs': https://stackoverflow.com/questions/36856232/write-add-data-in-json-file-using-node-js
 
 import cron from 'node-cron';
-import { format, parse, endOfWeek, eachDayOfInterval, nextDay, startOfTomorrow, toDate, set} from 'date-fns';
+import { endOfWeek, eachDayOfInterval, nextDay, toDate, startOfTomorrow, set} from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from './helper.js';
 import * as conf from './config.json';
@@ -33,8 +33,7 @@ const initCalendar = () => {
 
     // We need the current date as the starting date, but modified with UTC offset and the starting time set to 00:00:00.
     let startingDate = new Date();
-    startingDate = set(toDate(new Date(startingDate.valueOf() - startingDate.getTimezoneOffset() * 60 * 1000)), 
-    {hours: 0, minutes: 0, seconds: 0, milliseconds: 0});
+    startingDate = set(new Date(startingDate.valueOf() - startingDate.getTimezoneOffset() * 60 * 1000), {hours: 0, minutes: 0, seconds: 0, milliseconds: 0});
 
 
     if (!conf.default.aida.beginPostingToday) {
@@ -83,32 +82,44 @@ const performScheduling = (calendarObj) => {
 
     calendarObj.postList = '';
 
+    let intervalSpan = {};
+    // Only takes "weekly" posts into account at the moment. Will soon add daily and monthly options.
+    for (let x in conf.default.calendar.preferredPostingInterval) {
+        intervalSpan[x] = nextDay(calendarObj.availablePostDaysInterval.start, x.toString());
+    }
+    calendarObj.intervalSpan = intervalSpan;
+
     if (conf.default.calendar.strictlyUsePreferredPostingInterval) {
-        // Only schedule posts during the specified posting period.
-        
+        // Only schedule posts during the preferred posting period specified in the config.
+
     } else {
-        // Can allow posts from outside specified posting period, though ultimately more rare.
-        const nonPrefPostChance = conf.default.calendar.nonPreferredPostChance;
-        const r = Math.random();
-        logger.debug(`post chance: ${nonPrefPostChance}, random: ${r}, ${r < nonPrefPostChance ? true : false }`);
+        for (let x = 0; x < conf.default.calendar.postFrequency; x++) {
+            // Can allow posts from outside specified posting period, though ultimately more rare.
+            const nonPrefPostChance = conf.default.calendar.nonPreferredPostChance;
+            const r = Math.random();
+            logger.debug(`post chance: ${nonPrefPostChance}, random: ${r}, post on preferred day(s)?: ${r > nonPrefPostChance ? true : false }`);
+            if (r > nonPrefPostChance) {
+                // Post on a day thats IN the preferred posting periods.
 
-        let intervalSpan = {};
-
-        for (let x in conf.default.calendar.preferredPostingInterval) {
-            let nextPrefDay = nextDay(calendarObj.availablePostDaysInterval.start, x.toString());
-            console.log(nextPrefDay);
+                //  Complete these:
+                /**
+                 *  Pick a random day from calendar.availablePostDays, compare it to see if its included in the preferred days. (availablePostdays.include(pickedDate));
+                 *  If so, pick that day, if not, try again. (Maybe should be seperate method that is recalled?)
+                 * 
+                 *  Repeat for strictlyUsePreferredPostingInterval ^, but don't use recalling method.
+                 * 
+                 *  Once a day has been picked, randomly pick a time from within a 24-hour period. Compare it with perferredPostingInterval.
+                 *  If the time is within the preferredPostingInterval range, add it to the postList, if not retry.
+                 * 
+                 *  (Is there a better way to this?)
+                 */
+            } else {
+                // Post on non-preferred days.
+            }      
         }
-
-        if (r > nonPrefPostChance) {
-            // Post on a day thats IN the preferred posting periods.
-            // Choose day, select a tweet, add it to the postList.
-        } else {
-            // Post on non-preferred days.
-        }       
     }
 
     logger.info("Attempting to schedule posts...");
-    
     logger.info("Analyzing best time to post to increase engagement odds...");
 
     return calendarObj;
