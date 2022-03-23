@@ -7,7 +7,7 @@
 // !! Reading / Writing JSON using 'fs': https://stackoverflow.com/questions/36856232/write-add-data-in-json-file-using-node-js
 
 import cron from 'node-cron';
-import { format, endOfWeek, eachDayOfInterval} from 'date-fns';
+import { format, parse, endOfWeek, eachDayOfInterval, nextDay, startOfTomorrow, toDate, set} from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from './helper.js';
 import * as conf from './config.json';
@@ -28,18 +28,27 @@ const initCalendar = () => {
      * Await request from Scheduler to attach tweet into calendar.
      */
 
-    // TODO: Implement posting periods for daily or monthly posting.
     // Init posting configuration settings
     const acceptedPostingPeriods = ["weekly", "daily", "monthly"];
 
-    let todaysDate = new Date();
+    // We need the current date as the starting date, but modified with UTC offset and the starting time set to 00:00:00.
+    let startingDate = new Date();
+    startingDate = set(toDate(new Date(startingDate.valueOf() - startingDate.getTimezoneOffset() * 60 * 1000)), 
+    {hours: 0, minutes: 0, seconds: 0, milliseconds: 0});
+
+
+    if (!conf.default.aida.beginPostingToday) {
+        startingDate = startOfTomorrow();
+    }
+
     let postingPeriod = conf.default.calendar.postingPeriod;
     let lastPostDay = '';
 
+    // TODO: Implement posting periods for daily or monthly posting.
     if (acceptedPostingPeriods.includes(postingPeriod)) {
         if (postingPeriod == "weekly") {
             logger.info("Posting period has been set to weekly.");
-            lastPostDay = endOfWeek(todaysDate); // The last day in which tweets will get scheduled for the period.
+            lastPostDay = endOfWeek(startingDate); // The last day in which tweets will get scheduled for the period.
             logger.info(`Last day of the posting period is (${lastPostDay}).`);
         }
     } else {
@@ -48,9 +57,8 @@ const initCalendar = () => {
     
     const calendar = {};
 
-    // Return available dates that the scheduler can post on.
     calendar.availablePostDaysInterval = {
-        start: todaysDate,
+        start: startingDate,
         end: lastPostDay
     };
     calendar.availablePostDays = eachDayOfInterval(calendar.availablePostDaysInterval);
@@ -60,6 +68,7 @@ const initCalendar = () => {
     return calendar;
 }
 
+// TODO: Implement logic to only post during 'normal' hours, not during middle of night or after too long.
 const performScheduling = (calendarObj) => {
     /**
      * Analyze availablePostDays and determine which days will get what posts based on preferredPeriod [Interval?].
@@ -72,10 +81,35 @@ const performScheduling = (calendarObj) => {
     //     logger.info(uuidv4());
     // });
 
+    calendarObj.postList = '';
+
+    if (conf.default.calendar.strictlyUsePreferredPostingInterval) {
+        // Only schedule posts during the specified posting period.
+        
+    } else {
+        // Can allow posts from outside specified posting period, though ultimately more rare.
+        const nonPrefPostChance = conf.default.calendar.nonPreferredPostChance;
+        const r = Math.random();
+        logger.debug(`post chance: ${nonPrefPostChance}, random: ${r}, ${r < nonPrefPostChance ? true : false }`);
+
+        let intervalSpan = {};
+
+        for (let x in conf.default.calendar.preferredPostingInterval) {
+            let nextPrefDay = nextDay(calendarObj.availablePostDaysInterval.start, x.toString());
+            console.log(nextPrefDay);
+        }
+
+        if (r > nonPrefPostChance) {
+            // Post on a day thats IN the preferred posting periods.
+            // Choose day, select a tweet, add it to the postList.
+        } else {
+            // Post on non-preferred days.
+        }       
+    }
+
     logger.info("Attempting to schedule posts...");
     
     logger.info("Analyzing best time to post to increase engagement odds...");
-    logger.debug("^ This must be configured manually.");
 
     return calendarObj;
 }

@@ -35,6 +35,7 @@ const assignCategory = (json, path) => {
 }
 
 const aidaInit = () => {
+    logger.info(`Display config file contents: ${JSON.stringify(conf.default.aida)}${JSON.stringify(conf.default.calendar)}`);
     // TODO: Convert this into a dynamic for loop, pulling info from directory.
     importCategory('/categories/example.json');
     // importCategory('/categories/examp.json');
