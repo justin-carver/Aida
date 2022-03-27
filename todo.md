@@ -1,4 +1,3 @@
 # todo.md
 
-- Create a scheduling window with cron.
-- Create hashtag list for category tweets.
+- [ ] Allow the `timezone` property within config.json to affect posting limits. `e.g. date.toLocaleString("en-US", {timezone:"America/Chicago"})`

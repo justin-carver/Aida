@@ -10,16 +10,21 @@ const readFromConfig = (configProperty) => {
     }
 }
 
-// TODO: Fix/Update transports to log accurate levels and info to the all necessary log files below.
+const carmen = winston.format.combine(
+    winston.format.timestamp({format: 'YYYY-MM-DD HH:mm:ss.SSS'}),
+    readFromConfig(conf.default.aida.logOutputAsJson) ? winston.format.json() : winston.format.simple()
+);
+
+/**
+ * winston.format.combine(
+        winston.format.timestamp({format: 'YYYY-MM-DD HH:mm:ss.SSS'}),
+        winston.format.printf((info) => { return JSON.stringify({timestamp: info.timestamp, level: info.level, message: info.message})}),
+        readFromConfig(conf.default.aida.logOutputAsJson) ? winston.format.json() : winston.format.simple()
+ */
+
 const logger = winston.createLogger({
-    // TODO: Import logger level from config file.
     level: readFromConfig(conf.default.aida.logLevel),
-    format: winston.format.combine(
-        // winston.format.colorize(),
-        winston.format.timestamp(),
-        readFromConfig(conf.default.aida.logOutputAsJson) ? winston.format.json() : winston.format.simple(),
-    ),
-    // exitOnError: true,
+    format: carmen,
     transports: [
         new winston.transports.Console({ format: readFromConfig(conf.default.aida.logOutputAsJson) ? winston.format.json() : winston.format.simple() }),
         new winston.transports.File({ filename: 'error.log', level: 'error'}),

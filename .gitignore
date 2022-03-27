@@ -1,6 +1,5 @@
-# Contains Twitter API information within config.json
-# "bearer_token" : "TOKEN_INFORMATION_HERE"
 config.json
+pastebin.txt
 
 # Logs
 logs
