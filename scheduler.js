@@ -4,26 +4,44 @@
  * into the scheduler.
  */
 
-import cron from 'node-cron';
+import schedule from 'node-schedule';
 import { format, endOfWeek, eachDayOfInterval, compareAsc, nextDay, startOfTomorrow, set} from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { logger, readFromConfig } from './helper.js';
 import * as conf from './config.json';
 
+const runCronJobs = (postDateInfo) => {
+    try {
+        postDateInfo.proposedPostList.forEach((postDate) => {
+            logger.info(`Scheduling tweet for ${postDate}! Tweet info below.`);
+            schedule.scheduleJob(postDate, () => {
+                logger.debug('Post has been posted! On Twitter!');
+            });
+        });
+    } catch (e) {
+        throw new Error(`Error attempting to schedule tweet using proposedPostList! | ${e}`);
+    }
+}
+
 const initScheduler = () => {
+    logger.info('Creating the posting schedule and initializing the calendar...');
     let schedule = performScheduling(initCalendar());
     console.log(schedule);
+    logger.info('Beginning scheduling! Prepping cron jobs...');
+    runCronJobs(schedule);
 }
 
 const initCalendar = () => {
+    logger.debug('Calendar init, loading startup config...');
     const acceptedPostingPeriods = ["weekly", "daily", "monthly"];
 
     // We need the current date as the starting date, but modified with UTC offset and the starting time set to 00:00:00.
     let startingDate = new Date();
+    logger.info(`Starting post date set to: ${startingDate}`);
     // startingDate = new Date(set(new Date(startingDate.valueOf() - startingDate.getTimezoneOffset() * 60 * 1000), {hours: 0, minutes: 0, seconds: 0, milliseconds: 0}));
 
-
     if (!readFromConfig(conf.default.aida.beginPostingToday)) {
+        logger.info(`Posts will actually start getting scheduled tomorrow: ${startOfTomorrow()}`);
         startingDate = startOfTomorrow();
     }
 
@@ -47,7 +65,7 @@ const initCalendar = () => {
         start: startingDate,
         end: lastPostDay
     };
-    
+
     calendar.availablePostDays = eachDayOfInterval(calendar.availablePostDaysInterval).map(x => set(x, { hours: 0 }));
     logger.debug(`Calendar data structure dump: ${JSON.stringify(calendar)}`);
     logger.info('Calendar has been configured and created!');
@@ -106,7 +124,6 @@ const generatePreferredDate = (calendar) => {
     const rPrefDay = calendar.preferredPostingDays[Math.floor(Math.random() * calendar.preferredPostingDays.length)];
     const rAnyDay = calendar.availablePostDays[Math.floor(Math.random() * calendar.availablePostDays.length)];
     const nonPrefPostChance = readFromConfig(conf.default.calendar.nonPreferredPostChance);
-
     const r = Math.random();
 
     logger.debug(`Post chance: ${nonPrefPostChance}, Random value: ${r}, Post on preferred day(s)?: ${r > nonPrefPostChance ? true : false }`);

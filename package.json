@@ -34,15 +34,8 @@
   "homepage": "https://github.com/justin-carver/Aida#readme",
   "dependencies": {
     "date-fns": "^2.28.0",
-    "express": "^4.17.3",
-    "express-session": "^1.17.2",
-    "node-cron": "^3.0.0",
-    "node-fetch": "^3.2.3",
-    "twitter": "^1.7.1",
+    "node-schedule": "^2.1.0",
     "twitter-api-client": "^1.5.2",
-    "twitter-api-v2": "^1.11.0",
-    "twitter-oauth2": "^1.0.4",
-    "undici": "^4.15.1",
     "uuid": "^8.3.2",
     "winston": "^3.6.0"
   }
