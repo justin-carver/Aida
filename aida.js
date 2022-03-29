@@ -1,5 +1,4 @@
 import fs from 'fs';
-import { TwitterClient } from 'twitter-api-client';
 import path from 'path';
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
@@ -9,19 +8,24 @@ import * as conf from './config.json';
 import { logger, readFromConfig} from './helper.js';
 import initScheduler from './scheduler.js';
 
-// Twitter API ------
+// https://coderrocketfuel.com/article/recursively-list-all-the-files-in-a-directory-using-node-js
+const getAllFiles = function(dirPath, arrayOfFiles) {
+    let files = fs.readdirSync(dirPath);
+    arrayOfFiles = arrayOfFiles || [];
 
-const twitterClient = new TwitterClient({
-    apiKey : readFromConfig(conf.default.twitterapi.apiKey),
-    apiSecret : readFromConfig(conf.default.twitterapi.apiSecret),
-    accessToken : readFromConfig(conf.default.twitterapi.accessToken),
-    accessTokenSecret : readFromConfig(conf.default.twitterapi.accessTokenSecret)
-});
-
-// Aida Core Logic ------
+    files.forEach(function(file) {
+        if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+            arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
+        } else {
+            arrayOfFiles.push(path.join(__dirname, dirPath, "/", file))
+        }
+    });
+    return arrayOfFiles
+}
 
 const importCategory = (jsonPath) => {
-    fs.readFileSync(__dirname + jsonPath, 'utf8', (err, data) => { // Must be synchronous, otherwise creates race conditions.
+    fs.readFileSync(jsonPath, 'utf8', (err, data) => {
+        // TODO: Verify if the document we are attempting to import is a JSON document.
         if (err) {
             logger.error('JSON category document not found! Is the path set correctly?');
             throw err;
@@ -31,18 +35,18 @@ const importCategory = (jsonPath) => {
 }
 
 const assignCategory = (json, path) => {
-    logger.info(`Creating and assigning category for: ${path}!`);
+    logger.info(`Creating and assigning category for: ${path} ${json}!`);
 }
 
-// TODO: Check if config.json exists in the current directory. If not, create it.
 const aidaInit = () => {
     logger.info(`Display config file contents: ${JSON.stringify(readFromConfig(conf.default.aida))}${JSON.stringify(readFromConfig(conf.default.calendar))}`);
-    // TODO: Convert this into a dynamic for loop, pulling info from directory.
-    importCategory('/categories/example.json');
-    // importCategory('/categories/examp.json');
-    // importCategory('/categories/self-promotion.json');
-    // importCategory('/categories/tutorials.json');
-    // importCategory('/categories/articles.json');
+    const categoryDir = readFromConfig(conf.default.aida.categoryDirectory);
+    const categories = getAllFiles(categoryDir);
+    console.log(categories);
+    for (let x = 0; x < categories.length; x++) {
+        logger.info(`Importing tweet category from: ${categories[x]}`);
+        importCategory(categories[x]);
+    }
     initScheduler();
 }
 

@@ -15,13 +15,6 @@ const carmen = winston.format.combine(
     readFromConfig(conf.default.aida.logOutputAsJson) ? winston.format.json() : winston.format.simple()
 );
 
-/**
- * winston.format.combine(
-        winston.format.timestamp({format: 'YYYY-MM-DD HH:mm:ss.SSS'}),
-        winston.format.printf((info) => { return JSON.stringify({timestamp: info.timestamp, level: info.level, message: info.message})}),
-        readFromConfig(conf.default.aida.logOutputAsJson) ? winston.format.json() : winston.format.simple()
- */
-
 const logger = winston.createLogger({
     level: readFromConfig(conf.default.aida.logLevel),
     format: carmen,
@@ -32,4 +25,19 @@ const logger = winston.createLogger({
     ],
 });
 
-export { logger, readFromConfig };
+const defaultPostingInterval = {
+    "2" : {
+        "start" : "09:00",
+        "end" : "11:00"
+    },
+    "3" : {
+        "start" : "09:00",
+        "end" : "15:00"
+    },
+    "4" : {
+        "start" : "09:00",
+        "end" : "11:00"
+    }
+};
+
+export { logger, readFromConfig, defaultPostingInterval };

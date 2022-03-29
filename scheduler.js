@@ -1,14 +1,16 @@
-/**
- * Scheduler references imported cateogry documents, and will decide which tweets
- * should be implemented or placed in the staging area. The staging area is built
- * into the scheduler.
- */
-
 import schedule from 'node-schedule';
+import { TwitterClient } from 'twitter-api-client';
 import { format, endOfWeek, eachDayOfInterval, compareAsc, nextDay, startOfTomorrow, set} from 'date-fns';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'; // Each posted tweet needs a unique UUID.
 import { logger, readFromConfig } from './helper.js';
 import * as conf from './config.json';
+
+const twitterClient = new TwitterClient({
+    apiKey : readFromConfig(conf.default.twitterapi.apiKey),
+    apiSecret : readFromConfig(conf.default.twitterapi.apiSecret),
+    accessToken : readFromConfig(conf.default.twitterapi.accessToken),
+    accessTokenSecret : readFromConfig(conf.default.twitterapi.accessTokenSecret)
+});
 
 const runCronJobs = (postDateInfo) => {
     try {
@@ -35,10 +37,8 @@ const initCalendar = () => {
     logger.debug('Calendar init, loading startup config...');
     const acceptedPostingPeriods = ["weekly", "daily", "monthly"];
 
-    // We need the current date as the starting date, but modified with UTC offset and the starting time set to 00:00:00.
     let startingDate = new Date();
     logger.info(`Starting post date set to: ${startingDate}`);
-    // startingDate = new Date(set(new Date(startingDate.valueOf() - startingDate.getTimezoneOffset() * 60 * 1000), {hours: 0, minutes: 0, seconds: 0, milliseconds: 0}));
 
     if (!readFromConfig(conf.default.aida.beginPostingToday)) {
         logger.info(`Posts will actually start getting scheduled tomorrow: ${startOfTomorrow()}`);
@@ -68,25 +68,10 @@ const initCalendar = () => {
 
     calendar.availablePostDays = eachDayOfInterval(calendar.availablePostDaysInterval).map(x => set(x, { hours: 0 }));
     logger.debug(`Calendar data structure dump: ${JSON.stringify(calendar)}`);
+    
     logger.info('Calendar has been configured and created!');
-
     return calendar;
 }
-
-const defaultPostingInterval = {
-    "2" : {
-        "start" : "09:00",
-        "end" : "11:00"
-    },
-    "3" : {
-        "start" : "09:00",
-        "end" : "15:00"
-    },
-    "4" : {
-        "start" : "09:00",
-        "end" : "11:00"
-    }
-};
 
 const generatePreferredTimes = (day, useDefaultInterval = false) => {
     logger.debug(`Attempting to generate post time for ${day}...`);
