@@ -74,7 +74,8 @@ const initCalendar = () => {
 }
 
 const generatePreferredTimes = (day, useDefaultInterval = false) => {
-    logger.debug(`Attempting to generate post time for ${day}...`);
+    logger.debug(`Attempting to generate post time for ${format(day, 'PPPP')}...`);
+
     const getRandomRange = (min, max) => {
         min = Math.ceil(min);
         max = Math.floor(max);
@@ -88,7 +89,7 @@ const generatePreferredTimes = (day, useDefaultInterval = false) => {
         };
 
         try {
-            logger.debug(`Attempting to read ${format(day, 'i')} from ${JSON.stringify(readFromConfig(conf.default.calendar.preferredPostingInterval))}...`);
+            logger.debug(`Attempting to read posting interval for day ${format(day, 'i')} from ${JSON.stringify(readFromConfig(conf.default.calendar.preferredPostingInterval))}...`);
             interval = readFromConfig(conf.default.calendar.preferredPostingInterval[format(day, 'i')]);
         } catch {
             logger.debug(`Interval ${JSON.stringify(day)} is outside preferred posting interval. Using the posting interval fallback...`);
@@ -120,11 +121,11 @@ const generatePreferredDate = (calendar) => {
     } else { 
         if (r > nonPrefPostChance) {
             const setDay = set(rPrefDay, generatePreferredTimes(rPrefDay));
-            logger.debug(`Generated random day ${setDay} from preferredPostingDays{}.`);
+            logger.info(`Selected new posting date (pref): ${setDay}, generated from preferredPostingDays{}.`);
             return setDay;
         } else {
             const setDay = set(rAnyDay, generatePreferredTimes(rAnyDay));
-            logger.debug(`Generated random day ${rAnyDay} from availablePostingDays{}.`);
+            logger.info(`Selected new posting date (any): ${setDay} from availablePostingDays{}.`);
             return setDay;
         }
     }
@@ -132,7 +133,6 @@ const generatePreferredDate = (calendar) => {
 
 // TODO: Fix issue with multiple posts being scheduled on one day. Keep count?
 const performScheduling = (calendar) => {
-
     calendar.proposedPostList = [];
     let preferredPostingDays = [];
 
@@ -161,6 +161,8 @@ const performScheduling = (calendar) => {
             const postingDate = generatePreferredDate(calendar);
             logger.debug(`Proposed date chosen from preferred posting intervals: ${postingDate}`);
             calendar.proposedPostList.push(postingDate);
+            // Pick a random tweet from the categories.
+
         }
     }
 

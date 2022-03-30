@@ -8,8 +8,7 @@ import * as conf from './config.json';
 import { logger, readFromConfig} from './helper.js';
 import initScheduler from './scheduler.js';
 
-// https://coderrocketfuel.com/article/recursively-list-all-the-files-in-a-directory-using-node-js
-const getAllFiles = function(dirPath, arrayOfFiles) {
+const getAllFiles = (dirPath, arrayOfFiles) => {
     let files = fs.readdirSync(dirPath);
     arrayOfFiles = arrayOfFiles || [];
 
@@ -24,18 +23,14 @@ const getAllFiles = function(dirPath, arrayOfFiles) {
 }
 
 const importCategory = (jsonPath) => {
-    fs.readFileSync(jsonPath, 'utf8', (err, data) => {
-        // TODO: Verify if the document we are attempting to import is a JSON document.
-        if (err) {
-            logger.error('JSON category document not found! Is the path set correctly?');
-            throw err;
-        }
-        assignCategory(data, jsonPath);
-    });
+    logger.debug(`Attemping to import category document from ${jsonPath}...`);
+    assignCategory(fs.readFileSync(jsonPath, 'utf8'), jsonPath);
 }
 
-const assignCategory = (json, path) => {
-    logger.info(`Creating and assigning category for: ${path} ${json}!`);
+const assignCategory = (data, path) => {
+    // Categories are assigned object variables that can be access from scheduler.js.
+    // const object = {categoryData}; something like this, then export the object.
+    logger.info(`Creating and assigning category for: ${path} ${data}!`);
 }
 
 const aidaInit = () => {
@@ -44,10 +39,11 @@ const aidaInit = () => {
     const categories = getAllFiles(categoryDir);
     console.log(categories);
     for (let x = 0; x < categories.length; x++) {
-        logger.info(`Importing tweet category from: ${categories[x]}`);
         importCategory(categories[x]);
+        logger.info(`Successfully imported tweet category from: ${categories[x]}! Let's start tweeting!`);
     }
     initScheduler();
+    logger.info('Happy Tweeting! Aida will take care of the rest! 😉');
 }
 
 aidaInit();
