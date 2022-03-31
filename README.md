@@ -27,28 +27,89 @@ Aida will **not** automatically generate content for you. This is simply a way t
 - Will not send unsolicited direct messages to random users or groups.
 - Will not sporadically post all scheduled tweets in a single day.
 
+## How to Use
+
+1. Fork this repo or clone it onto your machine.
+2. Verify that the `config.json` has been created and configured using the resource below.
+3. Run `npm i` to install all dependencies.
+4. Run `npm start`.
+5. Aida will take care of the rest!
+
 ## Technicals
 
-`config.example.json` should be configured appropriately and renamed to `config.json` to enable Twitter API communication. Aida will not start without this file!
+Verify that `config.json` is generated using the details below to enable Twitter API communication. Aida will not start without this file!
 
 When configuring the appropriate `preferredPostingInterval` please adhere to [date-fns's](https://date-fns.org/v2.28.0/docs/format) documentation for ISO integer date formating, Sunday to Saturday:
 | Preferred Day | ISO Formatting |
-| --- | --- |
+| :--- | :--- |
 | Sun, Mon, Tues, Wed, Thurs, Fri, Sat | '0', '1', '2', '3', '4', '5', '6', '7' |
+`start` and `end` times within the `preferredPostingInterval` are running on a 24-hour format. (e.g. 16:00) Single-digit hours must be prefaced with a zero. (e.g. 04:00)
+
+### Config Template
+You will need a specified `config.json` file available in the same directory that Aida is located in.
+```
+{
+    "aida" : {
+        "categoryDirectory" : "categories",
+        "logLevel" : "debug",
+        "logOutputAsJson" : false,
+        "beginPostingToday" : true,
+        "requireFinalApproval" : false
+    },
+    "calendar" : {
+        "timezone" : "America/Chicago",
+        "postingPeriod" : "weekly",
+        "postFrequency" : 10,
+        "nonPreferredPostChance" : 0.10,
+        "strictlyUsePreferredPostingInterval" : false,
+        "preferredPostingInterval" : {
+            "2" : {
+                "start" : "09:00",
+                "end" : "11:00"
+            },
+        }
+    },
+    "twitterapi" : {
+        "apiKey" : "",
+        "apiSecret" : "",
+        "accessToken" : "",
+        "accessTokenSecret" : "",
+        "clientId" : "",
+        "clientSecret" : "",
+        "bearer_token" : ""
+    }
+}
+```
+
+### Config Descriptors
+| config item | type | description | flags |
+|:---|:---|:---|:---|
+| `categoryDirectory` | *string* | The *relative* path to the folder containing the category JSON files. | `"directory_name"`
+| `logLevel` | *string* | Configures the displayed log level that is output to the console and to log files. | `"info"`, `"debug"`, `"warn"`, `"error"`
+| `logOutputAsJson` | *boolean* | Will display terminal friendly log ouput if false, will output logs strictly as JSON objects if true. | `true`, `false`
+| `beginPostingToday` | *boolean* | If true, Scheduler will generate preferred posting times with the current day included. | `true`, `false`
+| `requireFinalApproval` | *boolean* | **(Not Implemented)** If true, Aida will require human input for approving the final post list. | `true`, `false`
 
 *Libraries:*
 
 [twitter-api-client](https://www.npmjs.com/package/twitter-api-client)
 
-[node-cron](https://www.npmjs.com/package/node-cron)
+[node-schedule](https://www.npmjs.com/package/node-schedule)
 
-[express](https://www.npmjs.com/package/express)
+[date-fns](https://www.npmjs.com/package/date-fns)
 
-## Wishlist
+[uuid](https://www.npmjs.com/package/uuid)
+
+## TODO
 
 These are various ideas that I would love to implement with Aida at some point:
 
-- [ ] Implement metric reporting locally on the server via Aida. Currently, users have to manage their own growth metrics.
+- [ ] Implement metric reporting locally on the server via Aida.
+- [ ] Once Aida has finished the posting period, generate a new one and restart if applicable.
+- [ ] Implement category weights to allow Aida to pull more posts from certain categories.
+- [ ] Be able to reply to simple direct messages or replies using scripted responses.
+- [ ] Tweet using a collection of hashtags for various categories.
+- [ ] Allow basic retweeting or liking of tweets, based on hashtag data.
 
 ---
 
