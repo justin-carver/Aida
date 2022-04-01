@@ -83,15 +83,12 @@ const initCalendar = () => {
     }
     
     const calendar = {};
-
-    calendar.listOfTweets = [];
-
     calendar.availablePostDaysInterval = {
         start: startingDate,
         end: lastPostDay
     };
-
     calendar.availablePostDays = eachDayOfInterval(calendar.availablePostDaysInterval).map(x => set(x, { hours: 0 }));
+    calendar.listOfTweets = [];
     logger.debug(`Calendar data structure dump: ${JSON.stringify(calendar)}`);
     
     logger.info('Calendar has been configured and created!');
