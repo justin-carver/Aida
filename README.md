@@ -1,12 +1,17 @@
-# Aida
-Welcome!
+# Aida 
+![Twitter](https://img.shields.io/badge/Autonomous_Twitter_Bot-%231DA1F2.svg?style=for-the-badge&logo=Twitter&logoColor=white)
 
-Aida is a light-weight, autonomous promotional Twitter bot designed to simulate human social media coordinators naturally without (currently) the use of neural networks. This bot is meant to be a logically designed alternative to automated scheduling/posting bots that blindly post, and my attempt to understand 'paid' Twitter bot features various startups offer. As well, Aida is designed to not be a malicious bot or a social media sponge. Aida will not mass follow people, spam certain users or groups with automated replies, or tweet at inhuman speeds in the middle of the night.
+[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
+
+
+Welcome! *Meet your new Social Media Manager: Aida.*
+
+Aida is a light-weight, autonomous promotional Twitter bot designed to simulate humans naturally on social media. This bot is meant to be a logically designed alternative to automated scheduling/posting bots that blindly post, and my attempt to understand 'paid' Twitter bot features various startups offer. As well, Aida is designed to not be a malicious bot or a social media sponge. Aida will not mass follow people, spam certain users or groups with automated replies, or tweet at inhuman speeds in the middle of the night.
 
 This bot is designed to be used to foster online business growth and promote content based on preferred posting periods. Various improvements, features, and bug fixes will be introduced over the coming months as I continue to tweak Aida into the bot that I am designing it for. Below is a basis on the bot's technical abilities and features:
 
 ### Defining a category
-A **category** is a collection of prepared tweets with various content or media that will be used by Aida to fill the calendar and schedule tweets throughout the designated time period stored within an easily editable JSON document. Your topics can be based on anything, but I recommend keeping related topics together in a single category to prevent random posts from invading your timeline if Aida has scheduled them differently.
+A **category** is a collection of prepared tweets with various content or media that will be used by Aida to fill the calendar and schedule tweets throughout the designated time period stored within an easily editable JSON document. Your topics can be based on anything you'd like to tweet about, but I recommend keeping related topics together in a single category to prevent random posts from invading your content calendar if Aida has scheduled them differently.
 
 Aida will **not** automatically generate content for you. This is simply a way to distribute large amounts of pre-configured content on a preferred schedule in a smart and easy way. Studies show that social media engagement rates are focused around certain intervals of time throughout the day: morning commute, lunch time, the drive home, etc. Aida will listen to your preferred posting periods within your `config.json` and schedule tweets only around your specified time intervals. This allows marketing to understand the business' KPIs/CTRs and always post content when people want to engage with it most, leading to positive organic growth.
 
@@ -39,15 +44,16 @@ Aida will **not** automatically generate content for you. This is simply a way t
 
 Verify that `config.json` is generated using the details below to enable Twitter API communication. Aida will not start without this file!
 
-When configuring the appropriate `preferredPostingInterval` please adhere to [date-fns's](https://date-fns.org/v2.28.0/docs/format) documentation for ISO integer date formating, Sunday to Saturday:
+When configuring the appropriate `preferredPostingInterval` please adhere to [date-fns's](https://date-fns.org/v2.28.0/docs/format) documentation for ISO weekday integer date formating, Monday to Sunday:
 | Preferred Day | ISO Formatting |
 | :--- | :--- |
-| Sun, Mon, Tues, Wed, Thurs, Fri, Sat | '0', '1', '2', '3', '4', '5', '6', '7' |
+| Mon, Tues, Wed, Thurs, Fri, Sat, Sun | '1', '2', '3', '4', '5', '6', '7' |
+
 `start` and `end` times within the `preferredPostingInterval` are running on a 24-hour format. (e.g. 16:00) Single-digit hours must be prefaced with a zero. (e.g. 04:00)
 
 ### Config Template
 You will need a specified `config.json` file available in the same directory that Aida is located in.
-```
+```json
 {
     "aida" : {
         "categoryDirectory" : "categories",
@@ -73,22 +79,23 @@ You will need a specified `config.json` file available in the same directory tha
         "apiKey" : "",
         "apiSecret" : "",
         "accessToken" : "",
-        "accessTokenSecret" : "",
-        "clientId" : "",
-        "clientSecret" : "",
-        "bearer_token" : ""
+        "accessTokenSecret" : ""
     }
 }
 ```
 
 ### Config Descriptors
-| config item | type | description | flags |
+| Config Item | Type | Description | Flags |
 |:---|:---|:---|:---|
+| **Aida** |
 | `categoryDirectory` | *string* | The *relative* path to the folder containing the category JSON files. | `"directory_name"`
 | `logLevel` | *string* | Configures the displayed log level that is output to the console and to log files. | `"info"`, `"debug"`, `"warn"`, `"error"`
 | `logOutputAsJson` | *boolean* | Will display terminal friendly log ouput if false, will output logs strictly as JSON objects if true. | `true`, `false`
 | `beginPostingToday` | *boolean* | If true, Scheduler will generate preferred posting times with the current day included. | `true`, `false`
 | `requireFinalApproval` | *boolean* | **(Not Implemented)** If true, Aida will require human input for approving the final post list. | `true`, `false`
+| **Calendar** |
+| `timezone` | *string* | **(WIP)** Allows custom timezones to be entered and applied for scheduling. | [list of timezones](https://stackoverflow.com/questions/38399465/how-to-get-list-of-all-timezones-in-javascript/54500197#54500197)
+| `postingPeriod` | *string* | Specifies how often the scheduler will generate new content calendars. | `"weekly"`
 
 *Libraries:*
 
@@ -111,6 +118,13 @@ These are various ideas that I would love to implement with Aida at some point:
 - [ ] Tweet using a collection of hashtags for various categories.
 - [ ] Allow basic retweeting or liking of tweets, based on hashtag data.
 
+---
+
+If you made it this far, [hire me!](https://linkedin.com/in/justin-carver)
+
+If you're currently using Aida for your business, consider [buying me a coffee!](https://ko-fi.com/justincarver) I'd love to continue to support Aida with new features.
+
+[![Ko-Fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/justincarver)
 ---
 
 **Disclaimer**: This Twitter bot is being made personally in mind for my game studio's Twitter account, [@pugnplaystudios](https://twitter.com/pugnplaystudios), as a means for a solo developer and designer to accrue growth on social media without having to dedicate large swaths of time throughout the week to posting online. Instead, I can create content over the course of a couple of days, set Aida to begin scheduling, and it will begin monitoring for the best time tweet and promote my material borderline autonomously with little input for weeks. This repository serves as a learning/portfolio purpose and does not provide unlimited support for questions. If there are issues with core logic or deployment, please open the appropriate ticket.

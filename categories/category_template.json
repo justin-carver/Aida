@@ -5,18 +5,15 @@
         "hashtag"
     ],
     "tweets" : {
-        "1" : {
+        "0" : {
             "text" : "this is a tweet",
-            "media" : "user1",
-            "date" : "date1"
+            "media" : "user1"
+        },
+        "1" : {
+            "text" : "this is a tweet"
         },
         "2" : {
-            "text" : "this is a tweet",
-            "date" : "date2"
-        },
-        "3" : {
-            "text" : "this is a tweet",
-            "date" : "date3"
+            "text" : "this is a tweet"
         }
     }
 }

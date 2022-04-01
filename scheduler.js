@@ -1,8 +1,11 @@
 import schedule from 'node-schedule';
 import { TwitterClient } from 'twitter-api-client';
 import { format, endOfWeek, eachDayOfInterval, compareAsc, nextDay, startOfTomorrow, set} from 'date-fns';
+import pkg from 'date-fns-tz';
+const { zonedTimeToUtc, utcToZonedTime, formatInTimeZone } = pkg;
 import { v4 as uuidv4 } from 'uuid'; // Each posted tweet needs a unique UUID.
 import { logger, readFromConfig } from './helper.js';
+import { categoryObj } from './aida.js';
 import * as conf from './config.json';
 
 const twitterClient = new TwitterClient({
@@ -12,11 +15,31 @@ const twitterClient = new TwitterClient({
     accessTokenSecret : readFromConfig(conf.default.twitterapi.accessTokenSecret)
 });
 
+const generateTweet = (categories, calendar) => {
+    let randomCategory = Object.keys(categories)[Math.floor(Math.random() * Object.keys(categories).length)];
+    logger.info(`Choosing a random tweet from: ${randomCategory}.`);
+    const randomTweet = categories[randomCategory]['tweets'][Math.floor(Math.random() * Object.keys(categories[randomCategory]['tweets']).length)];
+    logger.info(`Picking random tweet!: ${JSON.stringify(randomTweet)}`);
+    // where to store tweet?
+    calendar.listOfTweets.push(randomTweet);
+}
+
+const postTweet = async (date) => {
+    try {
+        await twitterClient.tweetsV2.createTweet({ "text" : "" });
+    } catch (e) {
+        throw new Error(`Failed to post tweet! | ${e}`);
+    }
+}
+
 const runCronJobs = (postDateInfo) => {
     try {
         postDateInfo.proposedPostList.forEach((postDate) => {
-            logger.info(`Scheduling tweet for ${postDate}! Tweet info below.`);
+            // (format(postDate, 'PPPPpppp')
+            // logger.debug(`Timezone conversion: ${formatInTimeZone(postDate, readFromConfig(conf.default.calendar.timezone), 'yyyy-MM-dd HH:mm:ss zzz')}`); <-- works atm
+            logger.info(`Scheduling tweet for ${utcToZonedTime(postDate, readFromConfig(conf.default.calendar.timezone))}! Tweet info below.`);
             schedule.scheduleJob(postDate, () => {
+                postTweet(postDate); // Dates are pretty much UUIDs.
                 logger.debug('Post has been posted! On Twitter!');
             });
         });
@@ -60,6 +83,8 @@ const initCalendar = () => {
     }
     
     const calendar = {};
+
+    calendar.listOfTweets = [];
 
     calendar.availablePostDaysInterval = {
         start: startingDate,
@@ -107,25 +132,25 @@ const generatePreferredTimes = (day, useDefaultInterval = false) => {
 }
 
 const generatePreferredDate = (calendar) => {
-    const rPrefDay = calendar.preferredPostingDays[Math.floor(Math.random() * calendar.preferredPostingDays.length)];
-    const rAnyDay = calendar.availablePostDays[Math.floor(Math.random() * calendar.availablePostDays.length)];
     const nonPrefPostChance = readFromConfig(conf.default.calendar.nonPreferredPostChance);
     const r = Math.random();
 
     logger.debug(`Post chance: ${nonPrefPostChance}, Random value: ${r}, Post on preferred day(s)?: ${r > nonPrefPostChance ? true : false }`);
-    logger.debug(`Random Chosen Pref Day: ${rPrefDay} | Random Chosen Any Day: ${rAnyDay}`);
+    // logger.debug(`Random Chosen Pref Day: ${format(rPrefDay, 'PPPP')} | Random Chosen Any Day: ${format(rAnyDay, 'PPPP')}`);
+    const rPrefDay = calendar.preferredPostingDays[Math.floor(Math.random() * calendar.preferredPostingDays.length)];
 
     if (!calendar.preferredPostingDays.includes(rPrefDay)) {
-        logger.warn(`Nope! ${rPrefDay} is not within ${calendar.availablePostDays}! Retrying!...`);
+        logger.warn(`Nope! ${format(rPrefDay, 'PPPP')} is not within ${calendar.availablePostDays}! Retrying!...`);
         generatePreferredDate(calendar);
     } else { 
         if (r > nonPrefPostChance) {
             const setDay = set(rPrefDay, generatePreferredTimes(rPrefDay));
-            logger.info(`Selected new posting date (pref): ${setDay}, generated from preferredPostingDays{}.`);
+            logger.info(`Selected new posting date (pref): ${format(setDay, 'PPPPpppp')}, generated from preferredPostingDays{}.`);
             return setDay;
         } else {
+            const rAnyDay = calendar.availablePostDays[Math.floor(Math.random() * calendar.availablePostDays.length)];
             const setDay = set(rAnyDay, generatePreferredTimes(rAnyDay));
-            logger.info(`Selected new posting date (any): ${setDay} from availablePostingDays{}.`);
+            logger.info(`Selected new posting date (any): ${format(setDay, 'PPPPpppp')} from availablePostingDays{}.`);
             return setDay;
         }
     }
@@ -156,13 +181,12 @@ const performScheduling = (calendar) => {
     } else {
         for (let x = 0; x < readFromConfig(conf.default.calendar.postFrequency); x++) {
             // Can allow posts from outside specified posting period, though ultimately more rare.
-            logger.debug('------ Generated Tweet Info -----------------------------------------------------------------');    
-
+            logger.debug('------ Generated Tweet Information --------------------------------------------------------------');    
             const postingDate = generatePreferredDate(calendar);
             logger.debug(`Proposed date chosen from preferred posting intervals: ${postingDate}`);
             calendar.proposedPostList.push(postingDate);
-            // Pick a random tweet from the categories.
-
+            logger.debug('Finding the right tweet to post...');
+            generateTweet(categoryObj, calendar);
         }
     }
 

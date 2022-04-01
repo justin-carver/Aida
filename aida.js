@@ -22,28 +22,35 @@ const getAllFiles = (dirPath, arrayOfFiles) => {
     return arrayOfFiles
 }
 
+const categoryObj = {}; // Holds all imported categories
+
 const importCategory = (jsonPath) => {
     logger.debug(`Attemping to import category document from ${jsonPath}...`);
     assignCategory(fs.readFileSync(jsonPath, 'utf8'), jsonPath);
 }
 
 const assignCategory = (data, path) => {
-    // Categories are assigned object variables that can be access from scheduler.js.
-    // const object = {categoryData}; something like this, then export the object.
-    logger.info(`Creating and assigning category for: ${path} ${data}!`);
+    try {
+        logger.info(`Creating and assigning category for: ${path}!`);
+        categoryObj[path.split("\\").pop()] = JSON.parse(data);
+    } catch (e) {
+        throw new Error(`Could not parse JSON document! Is your JSON valid? | ${e}`);
+    }
 }
 
 const aidaInit = () => {
     logger.info(`Display config file contents: ${JSON.stringify(readFromConfig(conf.default.aida))}${JSON.stringify(readFromConfig(conf.default.calendar))}`);
     const categoryDir = readFromConfig(conf.default.aida.categoryDirectory);
     const categories = getAllFiles(categoryDir);
-    console.log(categories);
     for (let x = 0; x < categories.length; x++) {
         importCategory(categories[x]);
         logger.info(`Successfully imported tweet category from: ${categories[x]}! Let's start tweeting!`);
     }
+
     initScheduler();
     logger.info('Happy Tweeting! Aida will take care of the rest! 😉');
 }
 
 aidaInit();
+
+export { categoryObj };
