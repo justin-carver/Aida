@@ -105,12 +105,11 @@ You will need a specified `config.json` file available in the same directory tha
 
 [date-fns](https://www.npmjs.com/package/date-fns)
 
-[uuid](https://www.npmjs.com/package/uuid)
-
 ## TODO
 
 These are various ideas that I would love to implement with Aida at some point:
 
+- [ ] Allow users to customize their own timezones. Currently only works with systems timezone.
 - [ ] Implement metric reporting locally on the server via Aida.
 - [ ] Once Aida has finished the posting period, generate a new one and restart if applicable.
 - [ ] Implement category weights to allow Aida to pull more posts from certain categories.

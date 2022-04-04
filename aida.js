@@ -51,6 +51,7 @@ const aidaInit = () => {
     logger.info('Happy Tweeting! Aida will take care of the rest! 😉');
 }
 
+// TODO: Once Aida has finished, she should automatically restart.
 aidaInit();
 
 export { categoryObj };
