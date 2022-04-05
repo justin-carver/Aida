@@ -13,7 +13,7 @@ This bot is designed to be used to foster online business growth and promote con
 ### Defining a category
 A **category** is a collection of prepared tweets with various content or media that will be used by Aida to fill the calendar and schedule tweets throughout the designated time period stored within an easily editable JSON document. Your topics can be based on anything you'd like to tweet about, but I recommend keeping related topics together in a single category to prevent random posts from invading your content calendar if Aida has scheduled them differently.
 
-Aida will **not** automatically generate content for you. This is simply a way to distribute large amounts of pre-configured content on a preferred schedule in a smart and easy way. Studies show that social media engagement rates are focused around certain intervals of time throughout the day: morning commute, lunch time, the drive home, etc. Aida will listen to your preferred posting periods within your `config.json` and schedule tweets only around your specified time intervals. This allows marketing to understand the business' KPIs/CTRs and always post content when people want to engage with it most, leading to positive organic growth.
+Aida will **not** automatically generate content for you. This is simply a way to distribute large amounts of pre-generated content on a preferred schedule in a smart and easy way. Studies show that social media engagement rates are focused around certain intervals of time throughout the day: morning commute, lunch time, the drive home, etc. Aida will listen to your preferred posting periods within your `config.json` and schedule tweets only around your specified time intervals. This allows marketing to understand the business' KPIs/CTRs and always post content when people want to engage with it most, leading to positive organic growth.
 
 #### Things Aida can do:
 
@@ -44,12 +44,16 @@ Aida will **not** automatically generate content for you. This is simply a way t
 
 Verify that `config.json` is generated using the details below to enable Twitter API communication. Aida will not start without this file!
 
+When using `readFromConfig(structurePath)` to add/read from the `config.json` you must use: `conf.default.[structureQuery]` in order to pull accurate information from the configuration file's JSON data structure. (e.g. `conf.default.calendar.postingPeriod`) Anything else may result in errors when launching.
+
 When configuring the appropriate `preferredPostingInterval` please adhere to [date-fns's](https://date-fns.org/v2.28.0/docs/format) documentation for ISO weekday integer date formating, Monday to Sunday:
 | Preferred Day | ISO Formatting |
 | :--- | :--- |
 | Mon, Tues, Wed, Thurs, Fri, Sat, Sun | '1', '2', '3', '4', '5', '6', '7' |
 
 `start` and `end` times within the `preferredPostingInterval` are running on a 24-hour format. (e.g. 16:00) Single-digit hours must be prefaced with a zero. (e.g. 04:00)
+
+If `postingPeriod` is set to `"daily"`, only the first element of the `preferredPostingInterval` array will be used.
 
 ### Config Template
 You will need a specified `config.json` file available in the same directory that Aida is located in.
