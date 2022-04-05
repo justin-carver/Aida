@@ -1,6 +1,6 @@
 import schedule from 'node-schedule';
 import { TwitterClient } from 'twitter-api-client';
-import { format, endOfWeek, eachDayOfInterval, compareAsc, nextDay, startOfTomorrow, set } from 'date-fns';
+import { format, endOfWeek, endOfDay, eachDayOfInterval, compareAsc, nextDay, startOfTomorrow, set } from 'date-fns';
 import { logger, readFromConfig } from './helper.js';
 import { categoryObj } from './aida.js';
 import * as conf from './config.json';
@@ -57,12 +57,13 @@ const initCalendar = () => {
     logger.debug('Calendar init, loading startup config...');
     const acceptedPostingPeriods = ["weekly", "daily", "monthly"];
 
-    let startingDate = new Date();
+    let startingDate = set(new Date(), {hours: 0, minutes: 0, seconds: 0, milliseconds: 0});
     logger.info(`Starting post date set to: ${startingDate}`);
 
     if (!readFromConfig(conf.default.aida.beginPostingToday)) {
         logger.info(`Posts will actually start getting scheduled tomorrow: ${startOfTomorrow()}`);
-        startingDate = startOfTomorrow();
+        startingDate = set(startOfTomorrow(), {hours: 0, minutes: 0, seconds: 0, milliseconds: 0});
+        console.log(startingDate);
     }
 
     let postingPeriod = readFromConfig(conf.default.calendar.postingPeriod);
@@ -70,10 +71,19 @@ const initCalendar = () => {
 
     // TODO: Implement posting periods for daily or monthly posting.
     if (acceptedPostingPeriods.includes(postingPeriod)) {
-        if (postingPeriod == "weekly") {
-            logger.info("Posting period has been set to weekly.");
-            lastPostDay = endOfWeek(startingDate); 
-            logger.info(`Last day of the posting period is (${lastPostDay}).`);
+        switch (postingPeriod) {
+            case "weekly":
+                logger.info("Posting period has been set to weekly.");
+                lastPostDay = set(endOfWeek(startingDate), {hours: 23, minutes: 59, seconds: 59, milliseconds: 999}); 
+                logger.info(`Last day of the posting period is (${lastPostDay}).`);
+            break;
+            case "daily":
+                logger.info("Posting period has been set to daily.");
+                lastPostDay = endOfDay(startingDate);
+                logger.info(`Last day of the posting period is (${lastPostDay}).`);
+            break;
+            default:
+                lastPostDay = endOfWeek(startingDate); // default weekly
         }
     } else {
         throw new Error(`Calendar is unable to set posting period! postingPeriod within config.json must be either: ${JSON.stringify(acceptedPostingPeriods)}.`);
@@ -132,21 +142,35 @@ const generatePreferredDate = (calendar) => {
     const r = Math.random();
 
     logger.debug(`Post chance: ${nonPrefPostChance}, Random value: ${r}, Post on preferred day(s)?: ${r > nonPrefPostChance ? true : false }`);
-    // logger.debug(`Random Chosen Pref Day: ${format(rPrefDay, 'PPPP')} | Random Chosen Any Day: ${format(rAnyDay, 'PPPP')}`);
-    const rPrefDay = calendar.preferredPostingDays[Math.floor(Math.random() * calendar.preferredPostingDays.length)];
+
+    let rPrefDay = new Date();
+
+    switch (readFromConfig(conf.default.calendar.postingPeriod)) {
+        case "daily":
+            rPrefDay = calendar.preferredPostingDays[0];
+            break;
+        default:
+            rPrefDay = calendar.preferredPostingDays[Math.floor(Math.random() * calendar.preferredPostingDays.length)];
+    }
 
     if (!calendar.preferredPostingDays.includes(rPrefDay)) {
         logger.warn(`Nope! ${format(rPrefDay, 'PPPP')} is not within ${calendar.availablePostDays}! Retrying!...`);
         generatePreferredDate(calendar);
     } else { 
-        if (r > nonPrefPostChance) {
+        if (!readFromConfig(conf.default.calendar.strictlyUsePreferredPostingInterval)) {
+            if (r > nonPrefPostChance) {
+                const setDay = set(rPrefDay, generatePreferredTimes(rPrefDay));
+                logger.info(`Selected new posting date (pref): ${format(setDay, 'PPPPpppp')}, generated from preferredPostingDays{}.`);
+                return setDay;
+            } else {
+                const rAnyDay = calendar.availablePostDays[Math.floor(Math.random() * calendar.availablePostDays.length)];
+                const setDay = set(rAnyDay, generatePreferredTimes(rAnyDay));
+                logger.info(`Selected new posting date (any): ${format(setDay, 'PPPPpppp')} from availablePostingDays{}.`);
+                return setDay;
+            }
+        } else {
             const setDay = set(rPrefDay, generatePreferredTimes(rPrefDay));
             logger.info(`Selected new posting date (pref): ${format(setDay, 'PPPPpppp')}, generated from preferredPostingDays{}.`);
-            return setDay;
-        } else {
-            const rAnyDay = calendar.availablePostDays[Math.floor(Math.random() * calendar.availablePostDays.length)];
-            const setDay = set(rAnyDay, generatePreferredTimes(rAnyDay));
-            logger.info(`Selected new posting date (any): ${format(setDay, 'PPPPpppp')} from availablePostingDays{}.`);
             return setDay;
         }
     }

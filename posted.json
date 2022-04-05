@@ -1,6 +1,0 @@
-{
-    "//" : "This file holds the ID's of the tweets that have been posted to prevent duplicates.",
-    "postedTweets" : {
-        "tweetID" : "tweetID"
-    }
-}

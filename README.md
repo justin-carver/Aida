@@ -63,7 +63,6 @@ You will need a specified `config.json` file available in the same directory tha
         "requireFinalApproval" : false
     },
     "calendar" : {
-        "timezone" : "America/Chicago",
         "postingPeriod" : "weekly",
         "postFrequency" : 10,
         "nonPreferredPostChance" : 0.10,
@@ -94,8 +93,7 @@ You will need a specified `config.json` file available in the same directory tha
 | `beginPostingToday` | *boolean* | If true, Scheduler will generate preferred posting times with the current day included. | `true`, `false`
 | `requireFinalApproval` | *boolean* | **(Not Implemented)** If true, Aida will require human input for approving the final post list. | `true`, `false`
 | **Calendar** |
-| `timezone` | *string* | **(WIP)** Allows custom timezones to be entered and applied for scheduling. | [list of timezones](https://stackoverflow.com/questions/38399465/how-to-get-list-of-all-timezones-in-javascript/54500197#54500197)
-| `postingPeriod` | *string* | Specifies how often the scheduler will generate new content calendars. | `"weekly"`
+| `postingPeriod` | *string* | Specifies how often the scheduler will generate new content calendars. | `"daily"`, `"weekly"`,
 
 *Libraries:*
 
