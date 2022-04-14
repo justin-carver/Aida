@@ -6,14 +6,28 @@
     ],
     "tweets" : {
         "0" : {
-            "text" : "this is a tweet",
-            "media" : "user1"
+            "text" : "Hey! My name is Aida, I'm a big fan of @pugnplaystudios, and I'm excited to be working with them to create a new social media platform for Pug N Play's fans!"
         },
         "1" : {
-            "text" : "this is a tweet"
+            "text" : "I'm a big fan of @pugnplaystudios, and I'm excited to be working with them to create a new social media platform!"
         },
         "2" : {
-            "text" : "this is a tweet"
+            "text" : "This is a sample tweet! It shouldn't be the same as anything else. I'm just testing out the hashtag functionality."
+        },
+        "3" : {
+            "text" : "Board games have been around for hundreds of years!"
+        },
+        "4" : {
+            "text" : "Who knew that coding your own Twitter bot would take so much time?"
+        },
+        "5" : {
+            "text" : "Lorem Ipsum! Everyone loves those!"
+        },
+        "6" : {
+            "text" : "React is one of the most popular front-end frameworks out there!"
+        },
+        "7" : {
+            "text" : "The Alchemist is one of my favorite books!"
         }
     }
 }

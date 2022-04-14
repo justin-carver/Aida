@@ -1,5 +1,5 @@
 import winston from 'winston';
-import * as conf from './config.json';
+import * as conf from './config.json' assert {type: 'json'};
 
 const readFromConfig = (configProperty) => {
     if (configProperty == undefined) {

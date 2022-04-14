@@ -1,10 +1,12 @@
 import fs from 'fs';
 import path from 'path';
+import pkg from 'enquirer';
+const { Input } = pkg;
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-import * as conf from './config.json';
+import * as conf from './config.json' assert {type: 'json'};
 import { logger, readFromConfig} from './helper.js';
 import initScheduler from './scheduler.js';
 
@@ -38,7 +40,7 @@ const assignCategory = (data, path) => {
     }
 }
 
-const aidaInit = () => {
+const aidaInit = async () => {
     logger.info(`Display config file contents: ${JSON.stringify(readFromConfig(conf.default.aida))}${JSON.stringify(readFromConfig(conf.default.calendar))}`);
     const categoryDir = readFromConfig(conf.default.aida.categoryDirectory);
     const categories = getAllFiles(categoryDir);
@@ -48,7 +50,18 @@ const aidaInit = () => {
     }
 
     initScheduler();
-    logger.info('Happy Tweeting! Aida will take care of the rest! 😉');
+
+    if (readFromConfig(conf.default.aida.requireFinalApproval)) {
+        const askFinalApproval = new Input({
+            approval: 'y',
+            message: 'Can we post the following tweets?'
+        });
+        const choice = await askFinalApproval.run();
+
+        if (choice == 'n') aidaInit();
+        
+        logger.info('Great! Aida will begin posting using the above schedule! Leave the rest to her! 🤩');
+    }
 }
 
 // TODO: Once Aida has finished, she should automatically restart.

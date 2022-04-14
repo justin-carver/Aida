@@ -44,6 +44,8 @@ Aida will **not** automatically generate content for you. This is simply a way t
 
 Verify that `config.json` is generated using the details below to enable Twitter API communication. Aida will not start without this file!
 
+If you are receiving a `{ uid: 'void', text: '' }` object within listOfTweets when attempting to post, this means that the post frequency is more than the total amount of written unique tweets. This can be disabled with the `enableReposts: true`. This is done with a simple string comparative operator, nothing fancy.
+
 When using `readFromConfig(structurePath)` to add/read from the `config.json` you must use: `conf.default.[structureQuery]` in order to pull accurate information from the configuration file's JSON data structure. (e.g. `conf.default.calendar.postingPeriod`) Anything else may result in errors when launching.
 
 When configuring the appropriate `preferredPostingInterval` please adhere to [date-fns's](https://date-fns.org/v2.28.0/docs/format) documentation for ISO weekday integer date formating, Monday to Sunday:
@@ -64,6 +66,7 @@ You will need a specified `config.json` file available in the same directory tha
         "logLevel" : "debug",
         "logOutputAsJson" : false,
         "beginPostingToday" : true,
+        "enableReposts" : false,
         "requireFinalApproval" : false
     },
     "calendar" : {
@@ -95,7 +98,8 @@ You will need a specified `config.json` file available in the same directory tha
 | `logLevel` | *string* | Configures the displayed log level that is output to the console and to log files. | `"info"`, `"debug"`, `"warn"`, `"error"`
 | `logOutputAsJson` | *boolean* | Will display terminal friendly log ouput if false, will output logs strictly as JSON objects if true. | `true`, `false`
 | `beginPostingToday` | *boolean* | If true, Scheduler will generate preferred posting times with the current day included. | `true`, `false`
-| `requireFinalApproval` | *boolean* | **(Not Implemented)** If true, Aida will require human input for approving the final post list. | `true`, `false`
+| `enableReposts` | *boolean* | If true, Aida will **not** determine whether the tweet has been posted already. | `true`, `false`
+| `requireFinalApproval` | *boolean* | If true, Aida will require human input for approving the final post list. | `true`, `false`
 | **Calendar** |
 | `postingPeriod` | *string* | Specifies how often the scheduler will generate new content calendars. | `"daily"`, `"weekly"`,
 

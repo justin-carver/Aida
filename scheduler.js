@@ -1,9 +1,10 @@
 import schedule from 'node-schedule';
 import { TwitterClient } from 'twitter-api-client';
-import { format, endOfWeek, endOfDay, eachDayOfInterval, compareAsc, nextDay, startOfTomorrow, set } from 'date-fns';
+import { format, endOfWeek, endOfDay, compareAsc, eachDayOfInterval, nextDay, startOfTomorrow, set } from 'date-fns';
 import { logger, readFromConfig } from './helper.js';
 import { categoryObj } from './aida.js';
-import * as conf from './config.json';
+import ShortUniqueId from 'short-unique-id';
+import * as conf from './config.json' assert {type: 'json'};
 
 const twitterClient = new TwitterClient({
     apiKey : readFromConfig(conf.default.twitterapi.apiKey),
@@ -12,12 +13,40 @@ const twitterClient = new TwitterClient({
     accessTokenSecret : readFromConfig(conf.default.twitterapi.accessTokenSecret)
 });
 
+const postedTweets = [];
+const uid = new ShortUniqueId({ length: 10 });
+
+const isTweetTaken = (tweet) => { return postedTweets.includes(tweet); }
+
 const generateTweet = (categories, calendar) => {
+
+    logger.debug('------ Generated Tweet Information --------------------------------------------------------------');    
+    const postingDate = generatePreferredDate(calendar);
+    
+    logger.debug(`Proposed posting date chosen from preferred posting intervals: ${postingDate}`);
+    calendar.proposedPostList.push(postingDate);
+    logger.debug('Finding the right tweet to post...');
+
     let randomCategory = Object.keys(categories)[Math.floor(Math.random() * Object.keys(categories).length)];
     logger.info(`Choosing a random tweet from: ${randomCategory}.`);
+
     const randomTweet = categories[randomCategory]['tweets'][Math.floor(Math.random() * Object.keys(categories[randomCategory]['tweets']).length)];
     logger.info(`Picking random tweet!: ${JSON.stringify(randomTweet)}`);
-    calendar.listOfTweets.push(randomTweet);
+
+    // TODO: Fix / Catch issue with post frequency being larger than imported category tweets causing stack overflow error.
+    // TODO: 
+    if (readFromConfig(conf.default.aida.enableReposts) == true) {
+        calendar.listOfTweets.push(Object.assign({uid : uid()}, randomTweet));
+    } else {
+        if (!isTweetTaken(randomTweet.text)) {
+            postedTweets.push(randomTweet.text);
+            calendar.listOfTweets.push(Object.assign({uid : uid()}, randomTweet));
+        } else {
+            if (postedTweets.length < readFromConfig(conf.default.calendar.postFrequency)) {
+                generateTweet(categories, calendar);
+            }
+        }
+    }
 }
 
 const postTweet = async (tweets) => {
@@ -69,7 +98,7 @@ const initCalendar = () => {
     let postingPeriod = readFromConfig(conf.default.calendar.postingPeriod);
     let lastPostDay = new Date();
 
-    // TODO: Implement posting periods for daily or monthly posting.
+    // TODO: Implement posting periods for monthly posting.
     if (acceptedPostingPeriods.includes(postingPeriod)) {
         switch (postingPeriod) {
             case "weekly":
@@ -136,14 +165,13 @@ const generatePreferredTimes = (day) => {
     };
 }
 
-// TODO: Introduce strictlyUsePreferredPostingInterval from the config.
 const generatePreferredDate = (calendar) => {
     const nonPrefPostChance = readFromConfig(conf.default.calendar.nonPreferredPostChance);
     const r = Math.random();
 
     logger.debug(`Post chance: ${nonPrefPostChance}, Random value: ${r}, Post on preferred day(s)?: ${r > nonPrefPostChance ? true : false }`);
 
-    let rPrefDay = new Date();
+    let rAnyDay, setDay, rPrefDay = new Date();
 
     switch (readFromConfig(conf.default.calendar.postingPeriod)) {
         case "daily":
@@ -159,17 +187,17 @@ const generatePreferredDate = (calendar) => {
     } else { 
         if (!readFromConfig(conf.default.calendar.strictlyUsePreferredPostingInterval)) {
             if (r > nonPrefPostChance) {
-                const setDay = set(rPrefDay, generatePreferredTimes(rPrefDay));
+                setDay = set(rPrefDay, generatePreferredTimes(rPrefDay));
                 logger.info(`Selected new posting date (pref): ${format(setDay, 'PPPPpppp')}, generated from preferredPostingDays{}.`);
                 return setDay;
             } else {
-                const rAnyDay = calendar.availablePostDays[Math.floor(Math.random() * calendar.availablePostDays.length)];
-                const setDay = set(rAnyDay, generatePreferredTimes(rAnyDay));
+                rAnyDay = calendar.availablePostDays[Math.floor(Math.random() * calendar.availablePostDays.length)];
+                setDay = set(rAnyDay, generatePreferredTimes(rAnyDay));
                 logger.info(`Selected new posting date (any): ${format(setDay, 'PPPPpppp')} from availablePostingDays{}.`);
                 return setDay;
             }
         } else {
-            const setDay = set(rPrefDay, generatePreferredTimes(rPrefDay));
+            setDay = set(rPrefDay, generatePreferredTimes(rPrefDay));
             logger.info(`Selected new posting date (pref): ${format(setDay, 'PPPPpppp')}, generated from preferredPostingDays{}.`);
             return setDay;
         }
@@ -190,20 +218,15 @@ const performScheduling = (calendar) => {
     
     calendar.preferredPostingDays = preferredPostingDays;
 
-    for (let x = 0; x < readFromConfig(conf.default.calendar.postFrequency); x++) {
-        // Can allow posts from outside specified posting period, though ultimately more rare.
-        logger.debug('------ Generated Tweet Information --------------------------------------------------------------');    
-        const postingDate = generatePreferredDate(calendar);
-        logger.debug(`Proposed date chosen from preferred posting intervals: ${postingDate}`);
-        calendar.proposedPostList.push(postingDate);
-        logger.debug('Finding the right tweet to post...');
+    let freq = readFromConfig(conf.default.calendar.postFrequency);
+    logger.info(`Generating ${freq} tweets!`);
+    for (let x = 0; x < freq; x++) { 
         generateTweet(categoryObj, calendar);
     }
 
-    logger.info("Attempting to schedule posts...");
     logger.info("Analyzing best time to post to increase engagement odds...");
 
-    calendar.proposedPostList.sort(compareAsc); // sort posts ascending
+    calendar.proposedPostList.sort(compareAsc);
     return calendar;
 }
 
