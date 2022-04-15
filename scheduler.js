@@ -13,7 +13,7 @@ const twitterClient = new TwitterClient({
     accessTokenSecret : readFromConfig(conf.default.twitterapi.accessTokenSecret)
 });
 
-const postedTweets = [];
+let postedTweets = [];
 const uid = new ShortUniqueId({ length: 10 });
 
 const isTweetTaken = (tweet) => { return postedTweets.includes(tweet); }
@@ -21,11 +21,6 @@ const isTweetTaken = (tweet) => { return postedTweets.includes(tweet); }
 const generateTweet = (categories, calendar) => {
 
     logger.debug('------ Generated Tweet Information --------------------------------------------------------------');    
-    const postingDate = generatePreferredDate(calendar);
-    
-    logger.debug(`Proposed posting date chosen from preferred posting intervals: ${postingDate}`);
-    calendar.proposedPostList.push(postingDate);
-    logger.debug('Finding the right tweet to post...');
 
     let randomCategory = Object.keys(categories)[Math.floor(Math.random() * Object.keys(categories).length)];
     logger.info(`Choosing a random tweet from: ${randomCategory}.`);
@@ -34,11 +29,16 @@ const generateTweet = (categories, calendar) => {
     logger.info(`Picking random tweet!: ${JSON.stringify(randomTweet)}`);
 
     // TODO: Fix / Catch issue with post frequency being larger than imported category tweets causing stack overflow error.
-    // TODO: 
     if (readFromConfig(conf.default.aida.enableReposts) == true) {
         calendar.listOfTweets.push(Object.assign({uid : uid()}, randomTweet));
     } else {
         if (!isTweetTaken(randomTweet.text)) {
+            const postingDate = generatePreferredDate(calendar);
+    
+            logger.debug(`Proposed posting date chosen from preferred posting intervals: ${postingDate}`);
+            calendar.proposedPostList.push(postingDate);
+            logger.debug('Finding the right tweet to post...');
+
             postedTweets.push(randomTweet.text);
             calendar.listOfTweets.push(Object.assign({uid : uid()}, randomTweet));
         } else {
@@ -62,8 +62,9 @@ const postTweet = async (tweets) => {
 
 const runCronJobs = (scheduleInfo) => {
     try {
-        scheduleInfo.proposedPostList.forEach((postDate) => {
+        scheduleInfo.proposedPostList.forEach((postDate, index) => {
             logger.info(`Scheduling tweet for ${format(postDate, 'PPPPpppp')}! Tweet info below.`);
+            logger.info(`☑️ ${JSON.stringify(scheduleInfo.listOfTweets[index].text)}`)
             schedule.scheduleJob(postDate, () => {
                 postTweet(scheduleInfo.listOfTweets);
                 logger.debug('Post has been posted! On Twitter!');
@@ -75,6 +76,7 @@ const runCronJobs = (scheduleInfo) => {
 }
 
 const initScheduler = () => {
+    postedTweets = [];
     logger.info('Creating the posting schedule and initializing the calendar...');
     let schedule = performScheduling(initCalendar());
     console.log(schedule);

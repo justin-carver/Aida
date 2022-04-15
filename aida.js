@@ -24,7 +24,7 @@ const getAllFiles = (dirPath, arrayOfFiles) => {
     return arrayOfFiles
 }
 
-const categoryObj = {}; // Holds all imported categories
+let categoryObj = {}; // Holds all imported categories
 
 const importCategory = (jsonPath) => {
     logger.debug(`Attemping to import category document from ${jsonPath}...`);
@@ -41,6 +41,7 @@ const assignCategory = (data, path) => {
 }
 
 const aidaInit = async () => {
+    categoryObj = {};
     logger.info(`Display config file contents: ${JSON.stringify(readFromConfig(conf.default.aida))}${JSON.stringify(readFromConfig(conf.default.calendar))}`);
     const categoryDir = readFromConfig(conf.default.aida.categoryDirectory);
     const categories = getAllFiles(categoryDir);
@@ -59,8 +60,7 @@ const aidaInit = async () => {
         const choice = await askFinalApproval.run();
 
         if (choice == 'n') aidaInit();
-        
-        logger.info('Great! Aida will begin posting using the above schedule! Leave the rest to her! 🤩');
+        if (choice == 'y') logger.info('Great! Aida will begin posting using the above schedule! Leave the rest to her! 🤩');
     }
 }
 
