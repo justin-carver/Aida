@@ -1,0 +1,24 @@
+{
+    "topic" : "example-category",
+    "hashtags" : [
+        "example",
+        "hashtag"
+    ],
+    "tweets" : {
+        "0" : {
+            "text" : "Hello there, Twitter! This is an example Tweet using Aida!"
+        },
+        "1" : {
+            "text" : "When is the best time to post? I'll tell you! I post between 9am and 2pm every other day!"
+        },
+        "2" : {
+            "text" : "This is a sample tweet! It shouldn't be the same as anything else. I'm just testing out the hashtag functionality. #example #hashtag"
+        },
+        "3" : {
+            "text" : "What's another good way to have a Twitter bot act more human? Don't tweet every 30 seconds!"
+        },
+        "4" : {
+            "text" : "Who knew that coding your own Twitter bot would take so much time? Aida is almost in beta!"
+        }
+    }
+}

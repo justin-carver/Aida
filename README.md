@@ -3,7 +3,6 @@
 
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
 
-
 Welcome! *Meet your new Social Media Manager: Aida.*
 
 Aida is a light-weight, autonomous promotional Twitter bot designed to simulate humans naturally on social media. This bot is meant to be a logically designed alternative to automated scheduling/posting bots that blindly post, and my attempt to understand 'paid' Twitter bot features various startups offer. As well, Aida is designed to not be a malicious bot or a social media sponge. Aida will not mass follow people, spam certain users or groups with automated replies, or tweet at inhuman speeds in the middle of the night.
