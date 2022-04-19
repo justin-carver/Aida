@@ -1,5 +1,12 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import winston from 'winston';
 import * as conf from './config.json' assert {type: 'json'};
+
+let categoryObj = {}; // Holds all imported categories
 
 const readFromConfig = (configProperty) => {
     if (configProperty == undefined) {
@@ -7,6 +14,41 @@ const readFromConfig = (configProperty) => {
         throw new Error(e);
     } else {
         return configProperty;
+    }
+}
+
+const resetCategoryObj = () => categoryObj = {};
+
+const importCategory = (jsonPath) => {
+    logger.debug(`Attemping to import category document from ${jsonPath}...`);
+    assignCategory(fs.readFileSync(jsonPath, 'utf8'), jsonPath);
+}
+
+const assignCategory = (data, path) => {
+    try {
+        logger.info(`Creating and assigning category for: ${path}!`);
+        categoryObj[path.split("\\").pop()] = JSON.parse(data);
+    } catch (e) {
+        throw new Error(`Could not parse JSON document! Is your JSON valid? | ${e}`);
+    }
+}
+
+const getAllFiles = (dirPath, arrayOfFiles) => {
+    let files = fs.readdirSync(dirPath);
+    arrayOfFiles = arrayOfFiles || [];
+
+    files.forEach(function(file) {
+        if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+            arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
+        } else {
+            arrayOfFiles.push(path.join(__dirname, dirPath, "/", file))
+        }
+    });
+    
+    if (readFromConfig(conf.default.aida.singleFile)) {
+        return arrayOfFiles.filter(file => file.includes(readFromConfig(conf.default.aida.singleFile)));
+    } else {
+        return arrayOfFiles;
     }
 }
 
@@ -40,4 +82,8 @@ const defaultPostingInterval = {
     }
 };
 
-export { logger, readFromConfig, defaultPostingInterval };
+export { 
+    logger, readFromConfig, defaultPostingInterval, 
+    getAllFiles, assignCategory, importCategory, 
+    categoryObj, resetCategoryObj
+};

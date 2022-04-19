@@ -1,8 +1,7 @@
 import schedule from 'node-schedule';
 import { TwitterClient } from 'twitter-api-client';
 import { format, endOfWeek, endOfDay, compareAsc, eachDayOfInterval, nextDay, startOfTomorrow, set } from 'date-fns';
-import { logger, readFromConfig } from './helper.js';
-import { categoryObj } from './aida.js';
+import { logger, readFromConfig, categoryObj} from './helper.js';
 import ShortUniqueId from 'short-unique-id';
 import * as conf from './config.json' assert {type: 'json'};
 
@@ -49,7 +48,7 @@ const generateTweet = (categories, calendar) => {
 const postTweet = async (tweets) => {
     try {
         await twitterClient.tweetsV2.createTweet({ "text" : tweets[0].text }).then(() => {
-            logger.info(`Success! The following tweet has been posted! ☑️ ${tweets[0].text}`);
+            logger.info(`Success! The following tweet has been posted! ☑️ "${tweets[0].text}"`);
             tweets.shift(); // Remove first tweet.
         });
     } catch (e) {
@@ -225,6 +224,11 @@ const performScheduling = (calendar) => {
 
     logger.info("Analyzing best time to post to increase engagement odds...");
 
+    calendar.proposedPostList = [
+        new Date('2022-04-19T02:30:00Z'),
+        new Date('2022-04-19T02:34:00Z'),
+        new Date('2022-04-19T02:41:00Z'),
+    ];
     calendar.proposedPostList.sort(compareAsc);
     return calendar;
 }
