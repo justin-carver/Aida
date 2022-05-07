@@ -5,13 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import * as conf from './config.json' assert { type: 'json' };
-import {
-    logger,
-    readFromConfig,
-    getAllFiles,
-    importCategory,
-    resetCategoryObj,
-} from './helper.js';
+import { logger, readFromConfig, getAllFiles, importCategory, resetCategoryObj } from './helper.js';
 import initScheduler from './scheduler.js';
 
 const aidaInit = async () => {
@@ -27,9 +21,7 @@ const aidaInit = async () => {
 
     try {
         if (readFromConfig(conf.default.aida.singleFile)) {
-            let categoryDir = readFromConfig(
-                conf.default.aida.categoryDirectory
-            );
+            let categoryDir = readFromConfig(conf.default.aida.categoryDirectory);
             let singleFile = readFromConfig(conf.default.aida.singleFile);
             importCategory(`${__dirname}\\${categoryDir}\\${singleFile}`);
         }

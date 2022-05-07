@@ -29,9 +29,7 @@ const assignCategory = (data, path) => {
         logger.info(`Creating and assigning category for: ${path}!`);
         categoryObj[path.split('\\').pop()] = JSON.parse(data);
     } catch (e) {
-        throw new Error(
-            `Could not parse JSON document! Is your JSON valid? | ${e}`
-        );
+        throw new Error(`Could not parse JSON document! Is your JSON valid? | ${e}`);
     }
 };
 

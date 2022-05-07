@@ -18,9 +18,7 @@ const twitterClient = new TwitterClient({
     apiKey: readFromConfig(conf.default.twitterapi.apiKey),
     apiSecret: readFromConfig(conf.default.twitterapi.apiSecret),
     accessToken: readFromConfig(conf.default.twitterapi.accessToken),
-    accessTokenSecret: readFromConfig(
-        conf.default.twitterapi.accessTokenSecret
-    ),
+    accessTokenSecret: readFromConfig(conf.default.twitterapi.accessTokenSecret),
 });
 
 let postedTweets = [];
@@ -32,15 +30,10 @@ const isTweetTaken = (tweet) => {
 
 const generateTweet = (categories, calendar) => {
     let randomCategory =
-        Object.keys(categories)[
-            Math.floor(Math.random() * Object.keys(categories).length)
-        ];
+        Object.keys(categories)[Math.floor(Math.random() * Object.keys(categories).length)];
     const randomTweet =
         categories[randomCategory]['tweets'][
-            Math.floor(
-                Math.random() *
-                    Object.keys(categories[randomCategory]['tweets']).length
-            )
+            Math.floor(Math.random() * Object.keys(categories[randomCategory]['tweets']).length)
         ];
 
     // TODO: Fix / Catch issue with post frequency being larger than imported category tweets causing stack overflow error.
@@ -52,9 +45,7 @@ const generateTweet = (categories, calendar) => {
                 '------ Generated Tweet Information --------------------------------------------------------------'
             );
             logger.info(`Choosing a random tweet from: ${randomCategory}.`);
-            logger.info(
-                `Picking random tweet!: ${JSON.stringify(randomTweet)}`
-            );
+            logger.info(`Picking random tweet!: ${JSON.stringify(randomTweet)}`);
             const postingDate = generatePreferredDate(calendar);
 
             logger.debug(
@@ -64,14 +55,9 @@ const generateTweet = (categories, calendar) => {
             logger.debug('Finding the right tweet to post...');
 
             postedTweets.push(randomTweet.text);
-            calendar.listOfTweets.push(
-                Object.assign({ uid: uid() }, randomTweet)
-            );
+            calendar.listOfTweets.push(Object.assign({ uid: uid() }, randomTweet));
         } else {
-            if (
-                postedTweets.length <
-                readFromConfig(conf.default.calendar.postFrequency)
-            ) {
+            if (postedTweets.length < readFromConfig(conf.default.calendar.postFrequency)) {
                 generateTweet(categories, calendar);
             }
         }
@@ -80,14 +66,10 @@ const generateTweet = (categories, calendar) => {
 
 const postTweet = async (tweets) => {
     try {
-        await twitterClient.tweetsV2
-            .createTweet({ text: tweets[0].text })
-            .then(() => {
-                logger.info(
-                    `Success! The following tweet has been posted! ☑️ "${tweets[0].text}"`
-                );
-                tweets.shift(); // Remove first tweet.
-            });
+        await twitterClient.tweetsV2.createTweet({ text: tweets[0].text }).then(() => {
+            logger.info(`Success! The following tweet has been posted! ☑️ "${tweets[0].text}"`);
+            tweets.shift(); // Remove first tweet.
+        });
     } catch (e) {
         throw new Error(`Failed to post tweet! | ${e}`);
     }
@@ -96,32 +78,21 @@ const postTweet = async (tweets) => {
 const runCronJobs = (scheduleInfo) => {
     try {
         scheduleInfo.proposedPostList.forEach((postDate, index) => {
-            logger.info(
-                `Scheduling tweet for ${format(
-                    postDate,
-                    'PPPPpppp'
-                )}! Tweet info below.`
-            );
-            logger.info(
-                `➡️ ${JSON.stringify(scheduleInfo.listOfTweets[index].text)}`
-            );
+            logger.info(`Scheduling tweet for ${format(postDate, 'PPPPpppp')}! Tweet info below.`);
+            logger.info(`➡️ ${JSON.stringify(scheduleInfo.listOfTweets[index].text)}`);
             schedule.scheduleJob(postDate, () => {
                 postTweet(scheduleInfo.listOfTweets);
                 logger.debug('Post has been posted! On Twitter!');
             });
         });
     } catch (e) {
-        throw new Error(
-            `Error attempting to schedule tweet using proposedPostList! | ${e}`
-        );
+        throw new Error(`Error attempting to schedule tweet using proposedPostList! | ${e}`);
     }
 };
 
 const initScheduler = () => {
     postedTweets = [];
-    logger.info(
-        'Creating the posting schedule and initializing the calendar...'
-    );
+    logger.info('Creating the posting schedule and initializing the calendar...');
     let schedule = performScheduling(initCalendar());
     console.log(schedule);
     logger.info('Beginning scheduling! Prepping cron jobs...');
@@ -141,9 +112,7 @@ const initCalendar = () => {
     logger.info(`Starting post date set to: ${startingDate}`);
 
     if (!readFromConfig(conf.default.aida.beginPostingToday)) {
-        logger.info(
-            `Posts will actually start getting scheduled tomorrow: ${startOfTomorrow()}`
-        );
+        logger.info(`Posts will actually start getting scheduled tomorrow: ${startOfTomorrow()}`);
         startingDate = set(startOfTomorrow(), {
             hours: 0,
             minutes: 0,
@@ -167,16 +136,12 @@ const initCalendar = () => {
                     seconds: 59,
                     milliseconds: 999,
                 });
-                logger.info(
-                    `Last day of the posting period is (${lastPostDay}).`
-                );
+                logger.info(`Last day of the posting period is (${lastPostDay}).`);
                 break;
             case 'daily':
                 logger.info('Posting period has been set to daily.');
                 lastPostDay = endOfDay(startingDate);
-                logger.info(
-                    `Last day of the posting period is (${lastPostDay}).`
-                );
+                logger.info(`Last day of the posting period is (${lastPostDay}).`);
                 break;
             default:
                 lastPostDay = endOfWeek(startingDate); // default weekly
@@ -194,9 +159,9 @@ const initCalendar = () => {
         start: startingDate,
         end: lastPostDay,
     };
-    calendar.availablePostDays = eachDayOfInterval(
-        calendar.availablePostDaysInterval
-    ).map((x) => set(x, { hours: 0 }));
+    calendar.availablePostDays = eachDayOfInterval(calendar.availablePostDaysInterval).map((x) =>
+        set(x, { hours: 0 })
+    );
     calendar.listOfTweets = [];
 
     logger.debug(`Calendar data structure dump: ${JSON.stringify(calendar)}`);
@@ -206,9 +171,7 @@ const initCalendar = () => {
 };
 
 const generatePreferredTimes = (day) => {
-    logger.debug(
-        `Attempting to generate post time for ${format(day, 'PPPP')}...`
-    );
+    logger.debug(`Attempting to generate post time for ${format(day, 'PPPP')}...`);
 
     const getRandomRange = (min, max) => {
         min = Math.ceil(min);
@@ -229,9 +192,7 @@ const generatePreferredTimes = (day) => {
                     day,
                     'i'
                 )} from ${JSON.stringify(
-                    readFromConfig(
-                        conf.default.calendar.preferredPostingInterval
-                    )
+                    readFromConfig(conf.default.calendar.preferredPostingInterval)
                 )}...`
             );
             interval = readFromConfig(
@@ -245,10 +206,7 @@ const generatePreferredTimes = (day) => {
             );
         }
 
-        return getRandomRange(
-            interval.start.substring(0, 2),
-            interval.end.substring(0, 2)
-        ); // Math library automatically converts strings into numbers!
+        return getRandomRange(interval.start.substring(0, 2), interval.end.substring(0, 2)); // Math library automatically converts strings into numbers!
     };
 
     return {
@@ -260,9 +218,7 @@ const generatePreferredTimes = (day) => {
 };
 
 const generatePreferredDate = (calendar) => {
-    const nonPrefPostChance = readFromConfig(
-        conf.default.calendar.nonPreferredPostChance
-    );
+    const nonPrefPostChance = readFromConfig(conf.default.calendar.nonPreferredPostChance);
     const r = Math.random();
 
     logger.debug(
@@ -282,9 +238,7 @@ const generatePreferredDate = (calendar) => {
         default:
             rPrefDay =
                 calendar.preferredPostingDays[
-                    Math.floor(
-                        Math.random() * calendar.preferredPostingDays.length
-                    )
+                    Math.floor(Math.random() * calendar.preferredPostingDays.length)
                 ];
     }
 
@@ -296,11 +250,7 @@ const generatePreferredDate = (calendar) => {
         );
         generatePreferredDate(calendar);
     } else {
-        if (
-            !readFromConfig(
-                conf.default.calendar.strictlyUsePreferredPostingInterval
-            )
-        ) {
+        if (!readFromConfig(conf.default.calendar.strictlyUsePreferredPostingInterval)) {
             if (r > nonPrefPostChance) {
                 setDay = set(rPrefDay, generatePreferredTimes(rPrefDay));
                 logger.info(
@@ -313,9 +263,7 @@ const generatePreferredDate = (calendar) => {
             } else {
                 rAnyDay =
                     calendar.availablePostDays[
-                        Math.floor(
-                            Math.random() * calendar.availablePostDays.length
-                        )
+                        Math.floor(Math.random() * calendar.availablePostDays.length)
                     ];
                 setDay = set(rAnyDay, generatePreferredTimes(rAnyDay));
                 logger.info(
@@ -345,9 +293,7 @@ const performScheduling = (calendar) => {
     let preferredPostingDays = [];
 
     // Only takes "weekly" posts into account at the moment. Will soon add daily and monthly options.
-    for (let x in readFromConfig(
-        conf.default.calendar.preferredPostingInterval
-    )) {
+    for (let x in readFromConfig(conf.default.calendar.preferredPostingInterval)) {
         if (
             !calendar.availablePostDays.includes(
                 nextDay(calendar.availablePostDaysInterval.start, x.toString())
