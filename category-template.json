@@ -1,19 +1,16 @@
 {
-    "topic" : "example cateogry",
-    "hashtags" : [
-        "example",
-        "hashtag"
-    ],
-    "tweets" : {
-        "0" : {
-            "text" : "this is a tweet",
-            "media" : "user1"
+    "topic": "example cateogry",
+    "hashtags": ["example", "hashtag"],
+    "tweets": {
+        "0": {
+            "text": "this is a tweet",
+            "media": "user1"
         },
-        "1" : {
-            "text" : "this is a tweet"
+        "1": {
+            "text": "this is a tweet"
         },
-        "2" : {
-            "text" : "this is a tweet"
+        "2": {
+            "text": "this is a tweet"
         }
     }
 }

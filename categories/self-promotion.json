@@ -1,24 +1,21 @@
 {
-    "topic" : "self-promotion",
-    "hashtags" : [
-        "example",
-        "hashtag"
-    ],
-    "tweets" : {
-        "0" : {
-            "text" : "Hey! My name is Aida, I'm a big fan of @pugnplaystudios, and I'm excited to be working with them to create a new social media platform for Pug N Play's fans!"
+    "topic": "self-promotion",
+    "hashtags": ["example", "hashtag"],
+    "tweets": {
+        "0": {
+            "text": "Hey! My name is Aida, I'm a big fan of @pugnplaystudios, and I'm excited to be working with them to create a new social media platform for Pug N Play's fans!"
         },
-        "1" : {
-            "text" : "I'm a big fan of @pugnplaystudios, and I'm excited to be working with them to create a new social media platform!"
+        "1": {
+            "text": "I'm a big fan of @pugnplaystudios, and I'm excited to be working with them to create a new social media platform!"
         },
-        "2" : {
-            "text" : "This is a sample tweet! It shouldn't be the same as anything else. I'm just testing out the hashtag functionality."
+        "2": {
+            "text": "This is a sample tweet! It shouldn't be the same as anything else. I'm just testing out the hashtag functionality."
         },
-        "3" : {
-            "text" : "Board games have been around for hundreds of years!"
+        "3": {
+            "text": "Board games have been around for hundreds of years!"
         },
-        "4" : {
-            "text" : "Who knew that coding your own Twitter bot would take so much time?"
+        "4": {
+            "text": "Who knew that coding your own Twitter bot would take so much time?"
         }
     }
 }
